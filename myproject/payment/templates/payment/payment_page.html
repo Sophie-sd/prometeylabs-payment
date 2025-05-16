@@ -94,6 +94,31 @@
         <div class="info-section contract-link">
             <h2>Договір:</h2>
             <p><a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary">Завантажити договір (PDF)</a></p>
+            
+            <div class="signature-container">
+                <div class="signature-header">
+                    <h3>Підписати договір онлайн</h3>
+                    <small>Має юридичну силу згідно ЗУ "Про електронні довірчі послуги"</small>
+                </div>
+                
+                <div class="signature-input">
+                    <input type="text" id="signatureName" placeholder="Введіть ваше повне ім'я" />
+                    <button class="button button-secondary" id="confirmName">Підтвердити</button>
+                </div>
+                
+                <canvas id="signatureCanvas" class="signature-pad" width="800" height="200"></canvas>
+                
+                <div class="signature-actions">
+                    <button class="button button-secondary" id="clearSignature">Очистити</button>
+                    <button class="button button-primary" id="saveSignature">Підписати документ</button>
+                </div>
+                
+                <div class="signature-info">
+                    Поставте підпис мишкою або пальцем (на сенсорному пристрої). Підписаний документ буде надіслано на вашу електронну пошту.
+                </div>
+                
+                <img id="signaturePreview" class="signature-preview" alt="Підпис" />
+            </div>
         </div>
         {% endif %}
 
@@ -169,6 +194,187 @@
                         });
                 });
             });
+
+            // Код для підпису договору
+            const canvas = document.getElementById('signatureCanvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                const signaturePreview = document.getElementById('signaturePreview');
+                const signatureName = document.getElementById('signatureName');
+                const confirmNameBtn = document.getElementById('confirmName');
+                const clearBtn = document.getElementById('clearSignature');
+                const saveBtn = document.getElementById('saveSignature');
+                
+                let isDrawing = false;
+                let lastX = 0;
+                let lastY = 0;
+                let nameConfirmed = false;
+                
+                // Налаштування стилю лінії
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#000';
+                
+                // Очищення полотна та встановлення повідомлення
+                function clearCanvas() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.font = '20px Arial';
+                    ctx.fillStyle = '#ccc';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Поставте тут ваш підпис', canvas.width / 2, canvas.height / 2);
+                }
+                
+                // Ініціалізація
+                clearCanvas();
+                
+                // Функція для початку малювання
+                function startDrawing(e) {
+                    if (!nameConfirmed) {
+                        alert('Спочатку введіть та підтвердіть ваше ім\'я');
+                        return;
+                    }
+                    
+                    isDrawing = true;
+                    [lastX, lastY] = getCoordinates(e);
+                }
+                
+                // Функція для отримання координат з різних типів подій
+                function getCoordinates(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    
+                    if (e.type.includes('touch')) {
+                        return [
+                            (e.touches[0].clientX - rect.left) * scaleX,
+                            (e.touches[0].clientY - rect.top) * scaleY
+                        ];
+                    } else {
+                        return [
+                            (e.clientX - rect.left) * scaleX,
+                            (e.clientY - rect.top) * scaleY
+                        ];
+                    }
+                }
+                
+                // Функція для малювання
+                function draw(e) {
+                    if (!isDrawing) return;
+                    e.preventDefault();
+                    
+                    const [currentX, currentY] = getCoordinates(e);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(currentX, currentY);
+                    ctx.stroke();
+                    
+                    [lastX, lastY] = [currentX, currentY];
+                }
+                
+                // Функція завершення малювання
+                function stopDrawing() {
+                    isDrawing = false;
+                }
+                
+                // Функція для збереження підпису
+                function saveSignature() {
+                    if (!nameConfirmed) {
+                        alert('Спочатку введіть та підтвердіть ваше ім\'я');
+                        return;
+                    }
+                    
+                    // Перевірка наявності підпису
+                    const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                    let hasSignature = false;
+                    
+                    for (let i = 0; i < pixelData.length; i += 4) {
+                        if (pixelData[i + 3] > 0) {
+                            hasSignature = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!hasSignature) {
+                        alert('Будь ласка, поставте підпис перед збереженням');
+                        return;
+                    }
+                    
+                    // Додавання імені до підпису
+                    const name = signatureName.value.trim();
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#000';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(name, canvas.width - 10, canvas.height - 10);
+                    
+                    // Конвертація підпису в зображення
+                    const signatureImage = canvas.toDataURL('image/png');
+                    signaturePreview.src = signatureImage;
+                    signaturePreview.style.display = 'block';
+                    
+                    // В реальному додатку тут був би AJAX запит для відправки підпису на сервер
+                    alert('Дякуємо! Ваш підпис збережено. Підписаний документ буде надіслано на вашу електронну пошту.');
+                    
+                    // Відправка даних на сервер (заглушка)
+                    console.log('Signature data:', signatureImage);
+                    console.log('Signature name:', name);
+                    console.log('Document ID:', '{{ payment_link.unique_id }}');
+                    
+                    // Тут би був код для передачі даних на сервер
+                    // fetch('/sign-document/', {
+                    //     method: 'POST',
+                    //     body: JSON.stringify({
+                    //         signature: signatureImage,
+                    //         name: name,
+                    //         documentId: '{{ payment_link.unique_id }}'
+                    //     }),
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //         'X-CSRFToken': getCookie('csrftoken')
+                    //     }
+                    // }).then(response => response.json())
+                    //   .then(data => console.log('Success:', data))
+                    //   .catch(error => console.error('Error:', error));
+                }
+                
+                // Обробник для підтвердження імені
+                confirmNameBtn.addEventListener('click', function() {
+                    const name = signatureName.value.trim();
+                    if (name.length < 5) {
+                        alert('Будь ласка, введіть ваше повне ім\'я');
+                        return;
+                    }
+                    
+                    nameConfirmed = true;
+                    signatureName.disabled = true;
+                    confirmNameBtn.disabled = true;
+                    
+                    // Очистка полотна для підпису
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvas.style.borderColor = '#007bff';
+                    
+                    // Додавання підказки
+                    ctx.font = '16px Arial';
+                    ctx.fillStyle = '#007bff';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Тепер поставте ваш підпис тут', canvas.width / 2, canvas.height / 2);
+                });
+                
+                // Додавання слухачів подій для підпису
+                canvas.addEventListener('mousedown', startDrawing);
+                canvas.addEventListener('touchstart', startDrawing);
+                
+                canvas.addEventListener('mousemove', draw);
+                canvas.addEventListener('touchmove', draw);
+                
+                canvas.addEventListener('mouseup', stopDrawing);
+                canvas.addEventListener('touchend', stopDrawing);
+                canvas.addEventListener('mouseout', stopDrawing);
+                
+                clearBtn.addEventListener('click', clearCanvas);
+                saveBtn.addEventListener('click', saveSignature);
+            }
         });
     </script>
 </body>
