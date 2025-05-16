@@ -44,7 +44,12 @@
                 {% endif %}
             </p>
             {% if payment_link.expires_at %}
-            <p><strong>Дійсне до:</strong> {{ payment_link.expires_at|date:"d.m.Y H:i:s T" }}</p>
+            <p>
+                <strong>Дійсне до:</strong> 
+                <span class="expires-date">{{ payment_link.expires_at|date:"d.m.Y" }}</span> 
+                <span class="expires-time">{{ payment_link.expires_at|date:"H:i" }}</span>
+                <span class="expires-timezone">({{ payment_link.expires_at|date:"T" }})</span>
+            </p>
             {% endif %}
         </div>
 
@@ -146,31 +151,55 @@
 
             if (!timerElement) return;
 
-            const x = setInterval(function() {
+            // Перевіряємо час одразу при завантаженні сторінки
+            checkTimeRemaining();
+            
+            // Функція для перевірки і оновлення часу
+            function checkTimeRemaining() {
                 const now = new Date().getTime();
                 const distance = countDownDate - now;
-
+                
+                if (distance < 0) {
+                    // Час вже минув
+                    timerElement.innerHTML = "ЧАС ВИЙШОВ";
+                    timerContainer.classList.add('timer-expired');
+                    // Можливо тут додати перезавантаження сторінки або інші дії
+                    return;
+                }
+                
+                // Розрахунок часу, що залишився
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+                // Форматування тексту таймера
                 let timerText = "";
-                if (days > 0) timerText += days + "д ";
-                if (hours > 0 || days > 0) timerText += hours + "г ";
-                if (minutes > 0 || hours > 0 || days > 0) timerText += minutes + "хв ";
-                timerText += seconds + "с";
+                if (days > 0) timerText += days + " д " + (days === 1 ? "" : "");
+                if (hours > 0 || days > 0) timerText += hours + " год " + (hours === 1 ? "" : "");
+                if (minutes > 0 || hours > 0 || days > 0) timerText += minutes + " хв " + (minutes === 1 ? "" : "");
+                timerText += seconds + " с";
                 
                 timerElement.innerHTML = timerText;
+                
+                // Змінюємо колір таймера в залежності від того, скільки часу залишилось
+                if (distance < 1000 * 60 * 30) { // Менше 30 хвилин
+                    timerContainer.classList.add('timer-urgent');
+                } else if (distance < 1000 * 60 * 60 * 3) { // Менше 3 годин
+                    timerContainer.classList.add('timer-warning');
+                }
+            }
+
+            // Оновлення таймера кожну секунду
+            const x = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
 
                 if (distance < 0) {
                     clearInterval(x);
-                    timerElement.innerHTML = "ЧАС ВИЙШОВ";
-                    timerContainer.style.backgroundColor = "#e9ecef";
-                    timerContainer.style.borderColor = "#ced4da";
-                    timerContainer.style.color = "#495057";
-                    // Тут можна додати логіку для блокування форми оплати або перезавантаження сторінки
-                    // Наприклад: window.location.reload();
+                    checkTimeRemaining();
+                } else {
+                    checkTimeRemaining();
                 }
             }, 1000);
         });
