@@ -56,6 +56,13 @@
         </div>
         {% endif %}
 
+        {% if payment_link.contract_file %}
+        <div class="info-section contract-link">
+            <h2>Договір:</h2>
+            <p><a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary">Завантажити договір (PDF)</a></p>
+        </div>
+        {% endif %}
+
         <div class="info-section payment-form">
             <h2>Форма оплати:</h2>
             
@@ -89,13 +96,6 @@
             <!-- Заглушка для кнопки оплати -->
             <a href="#" class="button button-primary">Оплатити {{ payment_link.amount }} {{ payment_link.currency }}</a>
         </div>
-
-        {% if payment_link.contract_file %}
-        <div class="info-section contract-link">
-            <h2>Договір:</h2>
-            <p><a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary">Завантажити договір (PDF)</a></p>
-        </div>
-        {% endif %}
 
         <div class="footer">
             <p><small>Унікальний ID посилання: {{ payment_link.unique_id }}</small></p>
