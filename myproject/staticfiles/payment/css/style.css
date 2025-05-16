@@ -607,12 +607,13 @@ a:hover {
     text-decoration: underline;
 }
 
+/* Стилі для кнопки Telegram, має вищий пріоритет ніж загальні стилі для посилань */
 .telegram-button {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    background-color: #0088cc;
-    color: #ffffff;
+    background-color: #0088cc !important;
+    color: #ffffff !important;
     border: none;
     border-radius: 25px;
     padding: 8px 20px;
@@ -625,23 +626,24 @@ a:hover {
 }
 
 .telegram-button:hover {
-    background-color: #0077b5;
+    background-color: #0077b5 !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 136, 204, 0.4);
     text-decoration: none;
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .telegram-button:active {
     transform: translateY(0);
 }
 
-.contact-info a {
+/* Загальні стилі для посилань в блоці контактів - мають нижчий пріоритет для .telegram-button */
+.contact-info a:not(.telegram-button):not(.contact-email) {
     color: var(--color-accent-primary);
     font-weight: 500;
 }
 
-.contact-info a:hover {
+.contact-info a:not(.telegram-button):not(.contact-email):hover {
     text-decoration: underline;
 }
 
