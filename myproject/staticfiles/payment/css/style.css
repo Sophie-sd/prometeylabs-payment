@@ -288,6 +288,24 @@ a:hover {
     padding: 5px;
 }
 
+/* Контактна інформація в блоці договору */
+.contact-info {
+    background-color: rgba(255, 109, 0, 0.05);
+    border: 1px solid rgba(255, 109, 0, 0.2);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 15px 0;
+}
+
+.contact-info a {
+    color: var(--color-accent-primary);
+    font-weight: 500;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
 /* Стилі для модального вікна */
 .custom-modal {
     display: none;
