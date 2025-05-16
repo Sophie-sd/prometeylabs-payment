@@ -374,14 +374,14 @@ a:hover {
 
 /* Реквізити */
 .payment-requisites {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .payment-requisites h3 {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--color-text-main);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     text-align: left;
     padding-bottom: 8px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -390,41 +390,56 @@ a:hover {
 .requisites-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 8px;
 }
 
 .requisites-field {
     display: flex;
     flex-direction: column;
     background-color: rgba(255, 255, 255, 0.95);
-    padding: 15px;
-    border-radius: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-    height: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .requisites-field:hover {
     background-color: rgba(255, 255, 255, 1);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     border-color: rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+}
+
+/* Спеціальні стилі для банку - без рамки та ефектів */
+.bank-details {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 5px 12px;
+    margin: 0;
+}
+
+.bank-details:hover {
+    background-color: transparent;
+    box-shadow: none;
+    transform: none;
+    border: none;
 }
 
 .requisites-header {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .requisites-icon {
-    margin-right: 12px;
+    margin-right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
-    height: 32px;
+    min-width: 28px;
+    height: 28px;
     background-color: rgba(0, 0, 0, 0.04);
     border-radius: 50%;
     color: #555555;
@@ -434,20 +449,20 @@ a:hover {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .requisites-content label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--color-text-sub);
-    margin-bottom: 3px;
+    margin-bottom: 2px;
 }
 
 .requisites-content span {
-    font-size: 0.85rem;
-    line-height: 1.25;
+    font-size: 0.8rem;
+    line-height: 1.2;
     word-break: break-word;
 }
 
@@ -458,8 +473,8 @@ a:hover {
 
 .bank-details .requisites-content span,
 .payment-purpose .requisites-content span {
-    font-size: 0.8rem;
-    line-height: 1.25;
+    font-size: 0.75rem;
+    line-height: 1.2;
 }
 
 .copy-btn {
@@ -467,9 +482,9 @@ a:hover {
     border: none;
     color: var(--color-accent-primary);
     cursor: pointer;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
     transition: all 0.2s;
     font-weight: 500;
     white-space: nowrap;
@@ -515,12 +530,18 @@ a:hover {
 /* Адаптивність для більших екранів */
 @media (min-width: 640px) {
     .requisites-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "fop ipn"
+            "iban iban"
+            "bank bank"
+            "purpose purpose";
     }
     
-    .payment-purpose {
-        grid-column: span 2;
-    }
+    .requisites-field:nth-child(1) { grid-area: fop; }
+    .requisites-field:nth-child(2) { grid-area: ipn; }
+    .requisites-field:nth-child(3) { grid-area: iban; }
+    .requisites-field:nth-child(4) { grid-area: bank; }
+    .requisites-field:nth-child(5) { grid-area: purpose; }
 }
 
 /* Адаптивність */
