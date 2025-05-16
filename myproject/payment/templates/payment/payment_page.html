@@ -58,7 +58,9 @@
             <div class="company-description">
                 <p>PrometeyLabs — це українська ІТ-компанія, що спеціалізується на швидкій розробці вебпродуктів, автоматизації процесів, інтеграції ШІ та чат-ботів. Ми працюємо швидко, без зайвих витрат та з фокусом на якість.</p>
                 
-                <button class="toggle-details-btn" id="companyDetailsBtn">Детальніше</button>
+                <div class="toggle-btn-wrapper">
+                    <button class="toggle-details-btn" id="companyDetailsBtn">Детальніше</button>
+                </div>
                 
                 <div class="company-details" id="companyDetails">
                     <p><strong>Основні напрямки:</strong><br>
@@ -243,13 +245,22 @@
             
             if (companyDetailsBtn && companyDetails) {
                 companyDetailsBtn.addEventListener('click', function() {
+                    const btnWrapper = this.parentElement; // Отримуємо wrapper для кнопки
+                    const companyDescriptionDiv = btnWrapper.parentElement; // Отримуємо батьківський div
+                    
                     companyDetails.classList.toggle('visible');
                     this.classList.toggle('active');
                     
                     if (companyDetails.classList.contains('visible')) {
+                        // Якщо блок розгорнутий, переміщуємо кнопку в кінець
                         this.textContent = 'Згорнути';
+                        btnWrapper.classList.add('bottom');
+                        companyDescriptionDiv.appendChild(btnWrapper);
                     } else {
+                        // Якщо блок згорнутий, повертаємо кнопку після першого абзацу
                         this.textContent = 'Детальніше';
+                        btnWrapper.classList.remove('bottom');
+                        companyDescriptionDiv.insertBefore(btnWrapper, companyDetails);
                     }
                 });
             }
