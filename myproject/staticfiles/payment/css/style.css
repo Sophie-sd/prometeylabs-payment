@@ -27,12 +27,24 @@ body {
 
 /* Контейнер */
 .container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 30px;
+    max-width: 750px;
+    margin: 50px auto;
+    padding: 35px;
     background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(to right, var(--color-accent-primary), var(--color-accent-secondary));
 }
 
 /* Заголовки */
@@ -43,14 +55,17 @@ h1 {
     color: var(--color-text-main);
     position: relative;
     display: inline-block;
+    text-align: center;
+    width: 100%;
 }
 
 h1::after {
     content: '';
     position: absolute;
     bottom: -8px;
-    left: 0;
-    width: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
     height: 4px;
     background-color: var(--color-accent-primary);
     border-radius: 2px;
@@ -61,36 +76,80 @@ h2 {
     font-size: 1.4rem;
     margin-top: 0;
     color: var(--color-text-main);
+    position: relative;
+    padding-bottom: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background-color: var(--color-accent-secondary);
+    border-radius: 1.5px;
 }
 
 /* Логотип */
 .logo {
     display: flex;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
+    justify-content: center;
 }
 
 .logo img {
-    height: 40px;
-    margin-right: 10px;
+    height: 45px;
+    margin-right: 12px;
 }
 
 .logo-text {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 800;
-}
-
-.logo-text span {
-    color: var(--color-accent-secondary);
+    background: linear-gradient(45deg, var(--color-accent-primary) 30%, var(--color-accent-secondary) 70%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
 }
 
 /* Секції */
 .info-section {
-    margin-bottom: 25px;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    padding: 25px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.info-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.payment-details {
+    border-left: 4px solid var(--color-accent-primary);
+}
+
+.contract-link {
+    border-left: 4px solid var(--color-accent-secondary);
+}
+
+.company-info {
+    border-left: 4px solid #00BFA6;
+}
+
+.payment-instructions {
+    border-left: 4px solid #FFA000;
+}
+
+.payment-form {
+    border-left: 4px solid #4CAF50;
 }
 
 /* Таймер */
@@ -109,13 +168,17 @@ h2 {
 /* Кнопки */
 .button {
     display: inline-block;
-    padding: 12px 24px;
+    padding: 12px 28px;
     font-weight: 600;
     border: none;
     border-radius: var(--button-radius);
     cursor: pointer;
     text-decoration: none;
     transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .button-primary {
@@ -125,6 +188,8 @@ h2 {
 
 .button-primary:hover {
     background-color: #E85D00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .button-secondary {
@@ -134,6 +199,8 @@ h2 {
 
 .button-secondary:hover {
     background-color: #9240E8;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Деталі платежу */
@@ -175,40 +242,60 @@ a:hover {
 
 /* Футер */
 .footer {
-    margin-top: 30px;
+    margin-top: 40px;
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--color-text-sub);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 20px;
+}
+
+.footer p {
+    margin: 5px 0;
 }
 
 /* Реквізити */
 .requisites-field {
     display: flex;
     align-items: center;
-    margin: 8px 0;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin: 10px 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.requisites-field:hover {
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.12);
 }
 
 .requisites-field span {
     flex-grow: 1;
 }
 
+.requisites-field strong {
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
 .copy-btn {
-    background-color: transparent;
+    background-color: rgba(255, 109, 0, 0.08);
     border: none;
     color: var(--color-accent-primary);
     cursor: pointer;
-    padding: 4px 8px;
+    padding: 6px 12px;
     font-size: 0.85rem;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: all 0.2s;
+    font-weight: 500;
 }
 
 .copy-btn:hover {
-    background-color: rgba(255, 109, 0, 0.1);
+    background-color: rgba(255, 109, 0, 0.15);
+    transform: translateY(-1px);
 }
 
 .copy-btn:active {
