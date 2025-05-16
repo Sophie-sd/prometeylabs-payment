@@ -58,12 +58,16 @@
             <div class="company-description">
                 <p>PrometeyLabs — це українська ІТ-компанія, що спеціалізується на швидкій розробці вебпродуктів, автоматизації процесів, інтеграції ШІ та чат-ботів. Ми працюємо швидко, без зайвих витрат та з фокусом на якість.</p>
                 
-                <p><strong>Основні напрямки:</strong><br>
-                Розробка сайтів та платформ<br>
-                AI-аватари, чат-боти, телеграм-боти<br>
-                E-commerce рішення</p>
+                <button class="toggle-details-btn" id="companyDetailsBtn">Детальніше</button>
                 
-                <p>ФОП Дмитренко Софія Дмитрівна, зареєстровано в Україні, платник єдиного податку 3 групи.</p>
+                <div class="company-details" id="companyDetails">
+                    <p><strong>Основні напрямки:</strong><br>
+                    Розробка сайтів та платформ<br>
+                    AI-аватари, чат-боти, телеграм-боти<br>
+                    E-commerce рішення</p>
+                    
+                    <p>ФОП Дмитренко Софія Дмитрівна, зареєстровано в Україні, платник єдиного податку 3 групи.</p>
+                </div>
             </div>
         </div>
 
@@ -232,6 +236,23 @@
                         });
                 });
             });
+            
+            // Функціонал для розгортання деталей про компанію
+            const companyDetailsBtn = document.getElementById('companyDetailsBtn');
+            const companyDetails = document.getElementById('companyDetails');
+            
+            if (companyDetailsBtn && companyDetails) {
+                companyDetailsBtn.addEventListener('click', function() {
+                    companyDetails.classList.toggle('visible');
+                    this.classList.toggle('active');
+                    
+                    if (companyDetails.classList.contains('visible')) {
+                        this.textContent = 'Згорнути';
+                    } else {
+                        this.textContent = 'Детальніше';
+                    }
+                });
+            }
         });
     </script>
 </body>

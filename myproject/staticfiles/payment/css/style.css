@@ -144,6 +144,52 @@ h2::after {
     border-left: 4px solid #00BFA6;
 }
 
+.company-details {
+    display: none;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.company-details.visible {
+    display: block;
+    animation: slideDown 0.4s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.toggle-details-btn {
+    background-color: transparent;
+    border: 1px solid #00BFA6;
+    color: #00BFA6;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 10px 0;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.toggle-details-btn:hover {
+    background-color: rgba(0, 191, 166, 0.1);
+    transform: translateY(-2px);
+}
+
+.toggle-details-btn.active {
+    background-color: #00BFA6;
+    color: white;
+}
+
 .payment-instructions {
     border-left: 4px solid #FFA000;
 }
