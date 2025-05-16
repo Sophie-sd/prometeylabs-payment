@@ -281,7 +281,7 @@
                 // Функція для збереження підпису
                 function saveSignature() {
                     if (!nameConfirmed) {
-                        alert('Спочатку введіть та підтвердіть ваше ім\'я');
+                        showModal('Помилка', 'Спочатку введіть та підтвердіть ваше ім\'я');
                         return;
                     }
                     
@@ -297,7 +297,7 @@
                     }
                     
                     if (!hasSignature) {
-                        alert('Будь ласка, поставте підпис перед збереженням');
+                        showModal('Помилка', 'Будь ласка, поставте підпис перед збереженням');
                         return;
                     }
                     
@@ -313,8 +313,8 @@
                     signaturePreview.src = signatureImage;
                     signaturePreview.style.display = 'block';
                     
-                    // В реальному додатку тут був би AJAX запит для відправки підпису на сервер
-                    alert('Дякуємо! Ваш підпис збережено. Підписаний документ буде надіслано на вашу електронну пошту.');
+                    // Показуємо стилізоване модальне вікно
+                    showModal('Підтвердите дійствие на ' + window.location.hostname, 'Дякуємо! Ваш підпис збережено. Підписаний документ буде надіслано на вашу електронну пошту.');
                     
                     // Відправка даних на сервер (заглушка)
                     console.log('Signature data:', signatureImage);
@@ -342,7 +342,7 @@
                 confirmNameBtn.addEventListener('click', function() {
                     const name = signatureName.value.trim();
                     if (name.length < 5) {
-                        alert('Будь ласка, введіть ваше повне ім\'я');
+                        showModal('Помилка', 'Будь ласка, введіть ваше повне ім\'я');
                         return;
                     }
                     
@@ -375,7 +375,54 @@
                 clearBtn.addEventListener('click', clearCanvas);
                 saveBtn.addEventListener('click', saveSignature);
             }
+            
+            // Функції для роботи з модальним вікном
+            const modal = document.getElementById('customModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalOkBtn = document.getElementById('modalOkBtn');
+            
+            // Функція відображення модального вікна
+            function showModal(title, message) {
+                if (modal) {
+                    modalTitle.textContent = title;
+                    modalMessage.textContent = message;
+                    modal.style.display = 'flex';
+                    
+                    // Обробник для закриття вікна при кліку на кнопку
+                    modalOkBtn.onclick = function() {
+                        closeModal();
+                    };
+                    
+                    // Закрити при кліку поза вікном
+                    window.onclick = function(event) {
+                        if (event.target == modal) {
+                            closeModal();
+                        }
+                    };
+                }
+            }
+            
+            // Функція закриття модального вікна
+            function closeModal() {
+                modal.style.display = 'none';
+            }
         });
     </script>
+    
+    <!-- Стилізоване модальне вікно для повідомлень -->
+    <div id="customModal" class="custom-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Підтвердите дійствие</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Дякуємо! Ваш підпис збережено. Підписаний документ буде надіслано на вашу електронну пошту.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="modalOkBtn" class="button button-primary">OK</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html> 
