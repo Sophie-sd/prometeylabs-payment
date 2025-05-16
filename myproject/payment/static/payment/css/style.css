@@ -165,6 +165,17 @@ h2::after {
     margin-top: 20px;
 }
 
+.company-legal-info {
+    font-size: 0.85rem;
+    color: var(--color-text-sub);
+    text-align: center;
+    margin-top: 20px;
+    font-style: italic;
+    padding: 10px 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 15px;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
