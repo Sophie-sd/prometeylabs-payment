@@ -45,33 +45,7 @@
                 AI-аватари, чат-боти, телеграм-боти<br>
                 E-commerce рішення</p>
                 
-                <p><strong>Реквізити для оплати:</strong></p>
-                
-                <div class="requisites-field">
-                    <span>ФОП Дмитренко Софія Дмитрівна</span>
-                    <button class="copy-btn" data-copy="ФОП Дмитренко Софія Дмитрівна">Копіювати</button>
-                </div>
-                
-                <div class="requisites-field">
-                    <span>ІПН: 3770706565</span>
-                    <button class="copy-btn" data-copy="3770706565">Копіювати</button>
-                </div>
-                
-                <div class="requisites-field">
-                    <span>IBAN: UA633220010000026003350084660</span>
-                    <button class="copy-btn" data-copy="UA633220010000026003350084660">Копіювати</button>
-                </div>
-                
-                <div class="requisites-field">
-                    <span>Акціонерне товариство УНІВЕРСАЛ БАНК, МФО: 322001</span>
-                </div>
-                
-                <div class="requisites-field">
-                    <span>Призначення платежу: Оплата за {{ payment_link.description }}</span>
-                    <button class="copy-btn" data-copy="Оплата за {{ payment_link.description }}">Копіювати</button>
-                </div>
-                
-                <p>ФОП зареєстровано в Україні, платник єдиного податку 3 групи.</p>
+                <p>ФОП Дмитренко Софія Дмитрівна, зареєстровано в Україні, платник єдиного податку 3 групи.</p>
             </div>
         </div>
 
@@ -91,6 +65,33 @@
 
         <div class="info-section payment-form">
             <h2>Форма оплати:</h2>
+            
+            <p><strong>Реквізити для оплати:</strong></p>
+            
+            <div class="requisites-field">
+                <span>ФОП Дмитренко Софія Дмитрівна</span>
+                <button class="copy-btn" data-copy="ФОП Дмитренко Софія Дмитрівна">Копіювати</button>
+            </div>
+            
+            <div class="requisites-field">
+                <span>ІПН: 3770706565</span>
+                <button class="copy-btn" data-copy="3770706565">Копіювати</button>
+            </div>
+            
+            <div class="requisites-field">
+                <span>IBAN: UA633220010000026003350084660</span>
+                <button class="copy-btn" data-copy="UA633220010000026003350084660">Копіювати</button>
+            </div>
+            
+            <div class="requisites-field">
+                <span>Акціонерне товариство УНІВЕРСАЛ БАНК, МФО: 322001</span>
+            </div>
+            
+            <div class="requisites-field">
+                <span>Призначення платежу: Оплата за {{ payment_link.description }}</span>
+                <button class="copy-btn" data-copy="Оплата за {{ payment_link.description }}">Копіювати</button>
+            </div>
+            
             <p><em>(Тут буде інтеграція з платіжною системою)</em></p>
             <!-- Заглушка для кнопки оплати -->
             <a href="#" class="button button-primary">Оплатити {{ payment_link.amount }} {{ payment_link.currency }}</a>
