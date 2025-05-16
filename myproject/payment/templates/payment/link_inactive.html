@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посилання неактивне</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; text-align: center; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; margin: 50px auto; }
+        h1 { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            {% if reason == 'expired' %}
+                Термін дії посилання минув
+            {% elif reason == 'paid' %}
+                Посилання вже оплачено
+            {% elif reason == 'deactivated' %}
+                Посилання деактивовано
+            {% else %}
+                Посилання неактивне
+            {% endif %}
+        </h1>
+        <p>На жаль, це платіжне посилання більше не дійсне.</p>
+        <p>Статус посилання: <strong>{{ payment_link.get_status_display }}</strong>.</p>
+        {% if payment_link.status == 'expired' and payment_link.expires_at %}
+            <p>Дійсне до: {{ payment_link.expires_at|date:"d.m.Y H:i:s" }}</p>
+        {% endif %}
+        <p>Якщо ви вважаєте, що це помилка, будь ласка, зв'яжіться з нами.</p>
+        <hr>
+        <p><small>ID посилання: {{ payment_link.unique_id }}</small></p>
+    </div>
+</body>
+</html> 

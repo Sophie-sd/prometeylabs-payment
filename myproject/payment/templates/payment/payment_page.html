@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата замовлення</title>
+    <!-- Тут можна підключити CSS-фреймворк або свої стилі -->
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 700px; margin: auto; }
+        h1 { color: #333; }
+        .info-section { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px; }
+        .info-section h2 { margin-top: 0; color: #555; font-size: 1.2em; }
+        .payment-details p, .company-info div, .payment-instructions div { margin: 5px 0; }
+        .contract-link a { color: #007bff; text-decoration: none; }
+        .contract-link a:hover { text-decoration: underline; }
+        .payment-instructions a { color: #007bff; }
+        #countdown-timer { font-size: 1.1em; font-weight: bold; color: #dc3545; margin-bottom: 15px; text-align: center; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;}
+        /* Додайте стилі для полів оплати пізніше */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Деталі вашого замовлення</h1>
+
+        {% if expires_at_iso %}
+            <div id="countdown-timer">Часу на оплату залишилось: <span id="timer"></span></div>
+        {% endif %}
+
+        <div class="info-section payment-details">
+            <h2>Інформація про платіж:</h2>
+            <p><strong>Опис:</strong> {{ payment_link.description }}</p>
+            <p><strong>Сума до сплати:</strong> {{ payment_link.amount }} {{ payment_link.currency }}</p>
+            <p><strong>Статус:</strong> {{ payment_link.get_status_display }}</p>
+            {% if payment_link.expires_at %}
+            <p><strong>Дійсне до:</strong> {{ payment_link.expires_at|date:"d.m.Y H:i:s T" }}</p>
+            {% endif %}
+        </div>
+
+        {% if payment_link.company_info %}
+        <div class="info-section company-info">
+            <h2>Інформація про компанію:</h2>
+            <div>{{ payment_link.company_info|safe }}</div>
+        </div>
+        {% endif %}
+
+        {% if payment_link.payment_instructions %}
+        <div class="info-section payment-instructions">
+            <h2>Інструкції з оплати:</h2>
+            <div>{{ payment_link.payment_instructions|safe }}</div>
+        </div>
+        {% endif %}
+
+        {% if payment_link.contract_file %}
+        <div class="info-section contract-link">
+            <h2>Договір:</h2>
+            <p><a href="{{ payment_link.contract_file.url }}" target="_blank">Завантажити договір (PDF)</a></p>
+        </div>
+        {% endif %}
+
+        <div class="info-section payment-form">
+            <h2>Форма оплати:</h2>
+            <p><em>(Тут буде інтеграція з платіжною системою)</em></p>
+            <!-- 
+                Сюди буде додано поля для введення карткових даних 
+                або перенаправлення на сторінку платіжного шлюзу.
+            -->
+        </div>
+
+        <hr>
+        <p><small>Унікальний ID посилання: {{ payment_link.unique_id }}</small></p>
+    </div>
+
+    {% if expires_at_iso %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const countDownDate = new Date("{{ expires_at_iso }}").getTime();
+            const timerElement = document.getElementById("timer");
+            const timerContainer = document.getElementById("countdown-timer");
+
+            if (!timerElement) return;
+
+            const x = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                let timerText = "";
+                if (days > 0) timerText += days + "д ";
+                if (hours > 0 || days > 0) timerText += hours + "г ";
+                if (minutes > 0 || hours > 0 || days > 0) timerText += minutes + "хв ";
+                timerText += seconds + "с";
+                
+                timerElement.innerHTML = timerText;
+
+                if (distance < 0) {
+                    clearInterval(x);
+                    timerElement.innerHTML = "ЧАС ВИЙШОВ";
+                    timerContainer.style.backgroundColor = "#e9ecef";
+                    timerContainer.style.borderColor = "#ced4da";
+                    timerContainer.style.color = "#495057";
+                    // Тут можна додати логіку для блокування форми оплати або перезавантаження сторінки
+                    // Наприклад: window.location.reload();
+                }
+            }, 1000);
+        });
+    </script>
+    {% endif %}
+</body>
+</html> 

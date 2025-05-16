@@ -1,0 +1,29 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+/* Основні кольори */
+--color-bg: #FFF6EF;                 /* Теплий бежевий фон */
+--color-accent-primary: #FF6D00;     /* Яскравий помаранчевий (CTA) */
+--color-accent-secondary: #A259FF;   /* Фіолетовий (додаткова дія) */
+--color-text-main: #0D0D0D;          /* Глибокий чорний текст */
+--color-text-sub: #6D6D6D;           /* Сірий для другорядного тексту */
+--color-highlight: #FF6D00;          /* Виділення ключових слів */
+
+/* Для кнопок */
+--button-primary-bg: #FF6D00;
+--button-primary-text: #ffffff;
+
+--button-secondary-bg: #A259FF;
+--button-secondary-text: #ffffff;
+
+--button-radius: 8px;
+
+Шрифт: Inter або Montserrat (візуально схожі, обидва підтримуються в Tailwind / Google Fonts)
+Великі заголовки: жирні, чорні (black or bold)
+Кольорові акценти в заголовках: помаранчевий #FF6D00 з підкресленням (можливо псевдоелементом ::after)
+
+Кнопки:
+помаранчева — головна дія
+фіолетова — другорядна
