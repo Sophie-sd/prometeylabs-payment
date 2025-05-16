@@ -35,10 +35,50 @@
             {% endif %}
         </div>
 
-        {% if payment_link.company_info %}
         <div class="info-section company-info">
             <h2>Інформація про компанію:</h2>
-            <div>{{ payment_link.company_info|safe }}</div>
+            <div class="company-description">
+                <p>PrometeyLabs — це українська ІТ-компанія, що спеціалізується на швидкій розробці вебпродуктів, автоматизації процесів, інтеграції ШІ та чат-ботів. Ми працюємо швидко, без зайвих витрат та з фокусом на якість.</p>
+                
+                <p><strong>Основні напрямки:</strong><br>
+                Розробка сайтів та платформ<br>
+                AI-аватари, чат-боти, телеграм-боти<br>
+                E-commerce рішення</p>
+                
+                <p><strong>Реквізити для оплати:</strong></p>
+                
+                <div class="requisites-field">
+                    <span>ФОП Дмитренко Софія Дмитрівна</span>
+                    <button class="copy-btn" data-copy="ФОП Дмитренко Софія Дмитрівна">Копіювати</button>
+                </div>
+                
+                <div class="requisites-field">
+                    <span>ІПН: 3770706565</span>
+                    <button class="copy-btn" data-copy="3770706565">Копіювати</button>
+                </div>
+                
+                <div class="requisites-field">
+                    <span>IBAN: UA633220010000026003350084660</span>
+                    <button class="copy-btn" data-copy="UA633220010000026003350084660">Копіювати</button>
+                </div>
+                
+                <div class="requisites-field">
+                    <span>Акціонерне товариство УНІВЕРСАЛ БАНК, МФО: 322001</span>
+                </div>
+                
+                <div class="requisites-field">
+                    <span>Призначення платежу: Оплата за {{ payment_link.description }}</span>
+                    <button class="copy-btn" data-copy="Оплата за {{ payment_link.description }}">Копіювати</button>
+                </div>
+                
+                <p>ФОП зареєстровано в Україні, платник єдиного податку 3 групи.</p>
+            </div>
+        </div>
+
+        {% if payment_link.contract_file %}
+        <div class="info-section contract-link">
+            <h2>Договір:</h2>
+            <p><a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary">Завантажити договір (PDF)</a></p>
         </div>
         {% endif %}
 
@@ -46,13 +86,6 @@
         <div class="info-section payment-instructions">
             <h2>Інструкції з оплати:</h2>
             <div>{{ payment_link.payment_instructions|safe }}</div>
-        </div>
-        {% endif %}
-
-        {% if payment_link.contract_file %}
-        <div class="info-section contract-link">
-            <h2>Договір:</h2>
-            <p><a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary">Завантажити договір (PDF)</a></p>
         </div>
         {% endif %}
 
@@ -108,5 +141,34 @@
         });
     </script>
     {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Додаємо функціонал кнопкам копіювання
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const textToCopy = this.getAttribute('data-copy');
+                    navigator.clipboard.writeText(textToCopy)
+                        .then(() => {
+                            // Зміна тексту кнопки на підтвердження
+                            const originalText = this.innerText;
+                            this.innerText = 'Скопійовано!';
+                            this.classList.add('copy-success');
+                            
+                            // Повернення оригінального тексту через 2 секунди
+                            setTimeout(() => {
+                                this.innerText = originalText;
+                                this.classList.remove('copy-success');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Помилка копіювання: ', err);
+                        });
+                });
+            });
+        });
+    </script>
 </body>
 </html> 

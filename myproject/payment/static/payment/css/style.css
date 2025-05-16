@@ -179,4 +179,43 @@ a:hover {
     text-align: center;
     font-size: 0.8rem;
     color: var(--color-text-sub);
+}
+
+/* Реквізити */
+.requisites-field {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.requisites-field span {
+    flex-grow: 1;
+}
+
+.copy-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--color-accent-primary);
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background-color: rgba(255, 109, 0, 0.1);
+}
+
+.copy-btn:active {
+    transform: scale(0.95);
+}
+
+.copy-success {
+    background-color: rgba(0, 150, 0, 0.1);
+    color: #007500;
 } 
