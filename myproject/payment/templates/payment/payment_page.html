@@ -29,7 +29,20 @@
             <h2>Інформація про платіж</h2>
             <p><strong>Опис:</strong> {{ payment_link.description }}</p>
             <p><strong>Сума до сплати:</strong> {{ payment_link.amount }} {{ payment_link.currency }}</p>
-            <p><strong>Статус:</strong> {{ payment_link.get_status_display }}</p>
+            <p>
+                <strong>Статус:</strong> 
+                {% if payment_link.status == 'pending' %}
+                    <span class="status-badge status-pending">{{ payment_link.get_status_display }}</span>
+                {% elif payment_link.status == 'paid' %}
+                    <span class="status-badge status-paid">{{ payment_link.get_status_display }}</span>
+                {% elif payment_link.status == 'expired' %}
+                    <span class="status-badge status-expired">{{ payment_link.get_status_display }}</span>
+                {% elif payment_link.status == 'cancelled' %}
+                    <span class="status-badge status-cancelled">{{ payment_link.get_status_display }}</span>
+                {% else %}
+                    <span class="status-badge">{{ payment_link.get_status_display }}</span>
+                {% endif %}
+            </p>
             {% if payment_link.expires_at %}
             <p><strong>Дійсне до:</strong> {{ payment_link.expires_at|date:"d.m.Y H:i:s T" }}</p>
             {% endif %}

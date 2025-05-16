@@ -210,6 +210,33 @@ h2::after {
     margin: 10px 0;
 }
 
+/* Статус платежу */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    margin-left: 6px;
+}
+
+.status-pending {
+    background-color: #2196F3; /* Синій колір для очікування оплати */
+}
+
+.status-paid {
+    background-color: #4CAF50; /* Зелений колір для оплачених */
+}
+
+.status-expired {
+    background-color: #F44336; /* Червоний колір для прострочених */
+}
+
+.status-cancelled {
+    background-color: #9E9E9E; /* Сірий колір для скасованих */
+}
+
 /* Посилання */
 a {
     color: var(--color-accent-primary);
