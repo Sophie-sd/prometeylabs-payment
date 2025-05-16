@@ -111,7 +111,9 @@
                 </a></p>
             </div>
             
-            <p><a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary">Завантажити договір (PDF)</a></p>
+            <div class="download-btn-wrapper">
+                <a href="{{ payment_link.contract_file.url }}" target="_blank" class="button button-secondary download-contract-btn">Завантажити договір (PDF)</a>
+            </div>
         </div>
         {% endif %}
 

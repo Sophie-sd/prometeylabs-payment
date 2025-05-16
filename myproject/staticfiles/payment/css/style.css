@@ -316,6 +316,7 @@ h2::after {
     background-color: #9240E8;
     transform: translateY(-2px);
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    color: #ffffff !important;
 }
 
 /* Деталі платежу */
@@ -645,6 +646,17 @@ a:hover {
 
 .contact-info a:not(.telegram-button):not(.contact-email):hover {
     text-decoration: underline;
+}
+
+/* Кнопка завантаження договору */
+.download-btn-wrapper {
+    text-align: center;
+    margin: 20px 0 10px;
+}
+
+.download-contract-btn {
+    display: inline-block;
+    min-width: 220px;
 }
 
 /* Стилі для модального вікна */
