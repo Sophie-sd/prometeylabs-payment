@@ -1,20 +1,25 @@
-{% load static %}
+{% load static tz %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оплата замовлення | PrometeyLabs</title>
+    <meta name="page-version" content="v1.5.3">
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Підключення власних стилів -->
+    
+    <!-- Стилі -->
     <link rel="stylesheet" href="{% static 'payment/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'payment/css/green_styles.css' %}">
+    {% include "payment/includes/currency_styles.html" %}
+    {% include "payment/direct_styles.html" %}
 </head>
 <body>
     <div class="container">
-        <!-- Логотип -->
         <div class="logo">
             <div class="logo-text">PrometeyLabs</div>
         </div>
@@ -28,7 +33,9 @@
         <div class="info-section payment-details">
             <h2>Інформація про платіж</h2>
             <p><strong>Опис:</strong> {{ payment_link.description }}</p>
-            <p><strong>Сума до сплати:</strong> {{ payment_link.amount }} {{ payment_link.currency }}</p>
+            
+            {% include "payment/includes/currency_display.html" with payment_link=payment_link %}
+            
             <p>
                 <strong>Статус:</strong> 
                 {% if payment_link.status == 'pending' %}
@@ -37,7 +44,7 @@
                     <span class="status-badge status-paid">{{ payment_link.get_status_display }}</span>
                 {% elif payment_link.status == 'expired' %}
                     <span class="status-badge status-expired">{{ payment_link.get_status_display }}</span>
-                {% elif payment_link.status == 'cancelled' %}
+                {% elif payment_link.status == 'deactivated' %}
                     <span class="status-badge status-cancelled">{{ payment_link.get_status_display }}</span>
                 {% else %}
                     <span class="status-badge">{{ payment_link.get_status_display }}</span>
@@ -46,17 +53,35 @@
             {% if payment_link.expires_at %}
             <p>
                 <strong>Дійсне до:</strong> 
-                <span class="expires-date">{{ payment_link.expires_at|date:"d.m.Y" }}</span> 
-                <span class="expires-time">{{ payment_link.expires_at|date:"H:i" }}</span>
-                <span class="expires-timezone">({{ payment_link.expires_at|date:"T" }})</span>
+                <span class="expires-date">{{ payment_link.expires_at|timezone:"Europe/Kyiv"|date:"d.m.Y" }}</span> 
+                <span class="expires-time">{{ payment_link.expires_at|timezone:"Europe/Kyiv"|date:"H:i" }}</span>
+                <span class="expires-timezone">(Київ, Україна)</span>
             </p>
             {% endif %}
+            
+            <div class="payment-cta">
+                <button class="button button-primary scroll-to-payment green-button" id="scrollToPaymentBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="currentColor"/>
+                    </svg>
+                    Оплатити
+                </button>
+            </div>
         </div>
 
         <div class="info-section company-info">
             <h2>Інформація про компанію</h2>
             <div class="company-description">
                 <p>PrometeyLabs — це українська ІТ-компанія, що спеціалізується на швидкій розробці вебпродуктів, автоматизації процесів, інтеграції ШІ та чат-ботів. Ми працюємо швидко, без зайвих витрат та з фокусом на якість.</p>
+                
+                <div class="company-website">
+                    <a href="https://prometeylabs.com" target="_blank" class="website-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 11.99 2ZM18.92 8H15.97C15.65 6.75 15.19 5.55 14.59 4.44C16.43 5.07 17.96 6.35 18.92 8ZM12 4.04C12.83 5.24 13.48 6.57 13.91 8H10.09C10.52 6.57 11.17 5.24 12 4.04ZM4.26 14C4.1 13.36 4 12.69 4 12C4 11.31 4.1 10.64 4.26 10H7.64C7.56 10.66 7.5 11.32 7.5 12C7.5 12.68 7.56 13.34 7.64 14H4.26ZM5.08 16H8.03C8.35 17.25 8.81 18.45 9.41 19.56C7.57 18.93 6.04 17.66 5.08 16ZM8.03 8H5.08C6.04 6.34 7.57 5.07 9.41 4.44C8.81 5.55 8.35 6.75 8.03 8ZM12 19.96C11.17 18.76 10.52 17.43 10.09 16H13.91C13.48 17.43 12.83 18.76 12 19.96ZM14.34 14H9.66C9.57 13.34 9.5 12.68 9.5 12C9.5 11.32 9.57 10.65 9.66 10H14.34C14.43 10.65 14.5 11.32 14.5 12C14.5 12.68 14.43 13.34 14.34 14ZM14.59 19.56C15.19 18.45 15.65 17.25 15.97 16H18.92C17.96 17.65 16.43 18.93 14.59 19.56ZM16.36 14C16.44 13.34 16.5 12.68 16.5 12C16.5 11.32 16.44 10.66 16.36 10H19.74C19.9 10.64 20 11.31 20 12C20 12.69 19.9 13.36 19.74 14H16.36Z" fill="currentColor"/>
+                        </svg>
+                        prometeylabs.com
+                    </a>
+                </div>
                 
                 <div class="toggle-btn-wrapper">
                     <button class="toggle-details-btn" id="companyDetailsBtn">Детальніше</button>
@@ -75,20 +100,30 @@
 
         <div class="info-section payment-instructions">
             <h2>Інструкції з оплати</h2>
-            <div>
-                <ol>
-                    <li>Ознайомтеся з деталями замовлення та сумою до оплати.</li>
-                    <li>Перегляньте договір і завантажте його для власної документації.</li>
-                    <li>Скористайтеся одним із наведених нижче способів оплати:
-                        <ul>
-                            <li><strong>Банківський переказ:</strong> Використовуйте реквізити, вказані в розділі "Форма оплати". Ви можете скопіювати необхідні дані натиснувши відповідні кнопки.</li>
-                            <li><strong>Платіжна картка:</strong> Натисніть кнопку "Оплатити" для переходу на безпечну сторінку обробки платежів.</li>
-                        </ul>
-                    </li>
-                    <li>Після здійснення оплати вам буде надіслано підтвердження на вашу електронну пошту.</li>
-                    <li>Якщо у вас виникли складнощі з оплатою, зверніться за контактними даними, вказаними в розділі з договором.</li>
-                </ol>
-                <p><em>Зверніть увагу: для юридичних осіб та ФОП при оплаті важливо вказати правильне призначення платежу.</em></p>
+            <div class="payment-instructions-description">
+                <p>Ознайомтеся з базовими кроками для успішної оплати вашого замовлення.</p>
+                
+                <div class="toggle-btn-wrapper">
+                    <button class="toggle-details-btn" id="paymentInstructionsBtn">Детальніше</button>
+                </div>
+                
+                <div class="payment-instructions-details" id="paymentInstructionsDetails">
+                    <div>
+                        <ol>
+                            <li>Ознайомтеся з деталями замовлення та сумою до оплати.</li>
+                            <li>Перегляньте договір і завантажте його для власної документації.</li>
+                            <li>Скористайтеся одним із наведених нижче способів оплати:
+                                <ul>
+                                    <li><strong>Банківський переказ:</strong> Використовуйте реквізити, вказані в розділі "Форма оплати". Ви можете скопіювати необхідні дані натиснувши відповідні кнопки.</li>
+                                    <li><strong>Платіжна картка:</strong> Натисніть кнопку "Оплатити" для переходу на безпечну сторінку обробки платежів.</li>
+                                </ul>
+                            </li>
+                            <li>Після здійснення оплати вам буде надіслано підтвердження на вашу електронну пошту.</li>
+                            <li>Якщо у вас виникли складнощі з оплатою, зверніться за контактними даними, вказаними в розділі з договором.</li>
+                        </ol>
+                        <p><em>Зверніть увагу: для юридичних осіб та ФОП при оплаті важливо вказати правильне призначення платежу.</em></p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -123,88 +158,250 @@
             <div class="payment-requisites">
                 <h3>Реквізити для оплати</h3>
                 
+                {% if payment_link.amount_usd and payment_link.exchange_rate_usd_to_uah and payment_link.final_amount_uah %}
+                <div class="payment-summary">
+                    <div class="payment-summary-inner" style="background-color: rgba(76, 175, 80, 0.08); border: 2px solid rgba(76, 175, 80, 0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold; font-size: 1.1em;">Сума до сплати:</span>
+                            <span style="color: #4CAF50; font-weight: 700; font-size: 1.35em;">{{ payment_link.final_amount_uah|floatformat:2 }} UAH</span>
+                        </div>
+                        <div style="margin-top: 5px; color: #666; font-size: 0.9em;">
+                            {{ payment_link.amount_usd|floatformat:2 }} USD × {{ payment_link.exchange_rate_usd_to_uah|floatformat:2 }} = {{ payment_link.final_amount_uah|floatformat:2 }} UAH
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <div class="requisites-grid">
                     <div class="requisites-field">
-                        <div class="requisites-header">
-                            <div class="requisites-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#555555"/>
-                                </svg>
+                        <div class="requisites-field-inner">
+                            <div class="requisites-header">
+                                <div class="requisites-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#555555"/>
+                                    </svg>
+                                </div>
+                                <div class="requisites-content">
+                                    <label>ФОП</label>
+                                    <span><strong>Дмитренко Софія Дмитрівна</strong></span>
+                                </div>
                             </div>
-                            <div class="requisites-content">
-                                <label>ФОП</label>
-                                <span><strong>Дмитренко Софія Дмитрівна</strong></span>
-                            </div>
+                            <button class="copy-btn" data-copy="Дмитренко Софія Дмитрівна">Копіювати</button>
                         </div>
-                        <button class="copy-btn" data-copy="Дмитренко Софія Дмитрівна">Копіювати</button>
                     </div>
                     
                     <div class="requisites-field">
-                        <div class="requisites-header">
-                            <div class="requisites-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="#555555"/>
-                                </svg>
+                        <div class="requisites-field-inner">
+                            <div class="requisites-header">
+                                <div class="requisites-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="#555555"/>
+                                    </svg>
+                                </div>
+                                <div class="requisites-content">
+                                    <label>ІПН</label>
+                                    <span><strong>3770706565</strong></span>
+                                </div>
                             </div>
-                            <div class="requisites-content">
-                                <label>ІПН</label>
-                                <span><strong>3770706565</strong></span>
-                            </div>
+                            <button class="copy-btn" data-copy="3770706565">Копіювати</button>
                         </div>
-                        <button class="copy-btn" data-copy="3770706565">Копіювати</button>
                     </div>
                     
                     <div class="requisites-field">
-                        <div class="requisites-header">
-                            <div class="requisites-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6.5 10H4.5V17H6.5V10ZM12.5 10H10.5V17H12.5V10ZM21 4H3C1.9 4 1 4.9 1 6V8H3V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V8H23V6C23 4.9 22.1 4 21 4ZM19 19H5V8H19V19ZM18.5 10H16.5V17H18.5V10Z" fill="#555555"/>
-                                </svg>
+                        <div class="requisites-field-inner">
+                            <div class="requisites-header">
+                                <div class="requisites-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6.5 10H4.5V17H6.5V10ZM12.5 10H10.5V17H12.5V10ZM21 4H3C1.9 4 1 4.9 1 6V8H3V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V8H23V6C23 4.9 22.1 4 21 4ZM19 19H5V8H19V19ZM18.5 10H16.5V17H18.5V10Z" fill="#555555"/>
+                                    </svg>
+                                </div>
+                                <div class="requisites-content">
+                                    <label>IBAN</label>
+                                    <span><strong>UA633220010000026003350084660</strong></span>
+                                </div>
                             </div>
-                            <div class="requisites-content">
-                                <label>IBAN</label>
-                                <span><strong>UA633220010000026003350084660</strong></span>
-                            </div>
+                            <button class="copy-btn" data-copy="UA633220010000026003350084660">Копіювати</button>
                         </div>
-                        <button class="copy-btn" data-copy="UA633220010000026003350084660">Копіювати</button>
                     </div>
                     
                     <div class="requisites-field bank-details">
-                        <div class="requisites-header">
-                            <div class="requisites-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M4 10H6V17H4V10ZM10 10H12V17H10V10ZM2 22H21V19H2V22ZM16 10H18V17H16V10ZM11.5 1L2 6V8H21V6L11.5 1Z" fill="#555555"/>
-                                </svg>
-                            </div>
-                            <div class="requisites-content">
-                                <label>Банк</label>
-                                <span>Акціонерне товариство УНІВЕРСАЛ БАНК, МФО: 322001</span>
+                        <div class="requisites-field-inner">
+                            <div class="requisites-header">
+                                <div class="requisites-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 10H6V17H4V10ZM10 10H12V17H10V10ZM2 22H21V19H2V22ZM16 10H18V17H16V10ZM11.5 1L2 6V8H21V6L11.5 1Z" fill="#555555"/>
+                                    </svg>
+                                </div>
+                                <div class="requisites-content">
+                                    <label>Банк</label>
+                                    <span>Акціонерне товариство УНІВЕРСАЛ БАНК, МФО: 322001</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="requisites-field payment-purpose">
-                        <div class="requisites-header">
-                            <div class="requisites-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM16 18H8V16H16V18ZM16 14H8V12H16V14ZM13 9V3.5L18.5 9H13Z" fill="#555555"/>
-                                </svg>
+                        <div class="requisites-field-inner">
+                            <div class="requisites-header">
+                                <div class="requisites-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM16 18H8V16H16V18ZM16 14H8V12H16V14ZM13 9V3.5L18.5 9H13Z" fill="#555555"/>
+                                    </svg>
+                                </div>
+                                <div class="requisites-content">
+                                    <label>Призначення платежу</label>
+                                    <span><strong>Оплата за {{ payment_link.description }}</strong></span>
+                                </div>
                             </div>
-                            <div class="requisites-content">
-                                <label>Призначення платежу</label>
-                                <span><strong>Оплата за {{ payment_link.description }}</strong></span>
-                            </div>
+                            <button class="copy-btn" data-copy="Оплата за {{ payment_link.description }}">Копіювати</button>
                         </div>
-                        <button class="copy-btn" data-copy="Оплата за {{ payment_link.description }}">Копіювати</button>
                     </div>
+                </div>
+                <!-- Кнопки для відправки квитанції -->
+                <div class="send-receipt-actions">
+                    <a href="https://t.me/PrometeyLabs" target="_blank" class="button button-secondary receipt-btn-telegram">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 14.22 15.51 15.99C15.37 16.74 15.09 16.99 14.83 17.02C14.25 17.07 13.81 16.64 13.25 16.27C12.37 15.69 11.87 15.33 11.02 14.77C10.03 14.12 10.67 13.76 11.24 13.18C11.39 13.03 13.95 10.7 14 10.49C14.0069 10.4582 14.006 10.4252 13.9973 10.3938C13.9886 10.3624 13.9724 10.3337 13.95 10.31C13.89 10.26 13.81 10.28 13.74 10.29C13.65 10.31 12.15 11.34 9.24 13.39C8.78 13.71 8.37 13.86 8 13.85C7.58 13.84 6.79 13.62 6.2 13.43C5.47 13.21 4.89 13.09 4.95 12.7C4.98 12.5 5.27 12.29 5.82 12.09C8.94 10.67 11.07 9.72 12.21 9.22C15.33 7.8 16.13 7.54 16.64 7.54C16.75 7.54 16.99 7.57 17.15 7.7C17.29 7.82 17.32 7.97 17.33 8.08C17.33 8.17 17.35 8.44 17.34 8.67L16.64 8.8Z" fill="currentColor"/></svg>
+                        Відправити квитанцію у Telegram
+                    </a>
+                    <a href="mailto:prometeylabs@gmail.com?subject=Квитанція%20про%20оплату%20за%20{{ payment_link.description|urlencode }}" class="button button-secondary receipt-btn-email">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;"><path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="currentColor"/></svg>
+                        Відправити квитанцію на email
+                    </a>
                 </div>
             </div>
             
-            <div class="payment-action">
-                <p>Оберіть спосіб оплати:</p>
-                <a href="#" class="button button-primary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
-                    <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="currentColor"/>
-                </svg>Оплатити {{ payment_link.amount }} {{ payment_link.currency }}</a>
+            
+            <!-- Онлайн оплата через monobank -->
+            <div class="digital-payment-section">
+                <div class="payment-option-card">
+                    <div class="payment-option-header">
+                        <div class="payment-provider-logo">
+                            <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="48" height="48" rx="12" fill="#333333"/>
+                                <path d="M24 6C14.06 6 6 14.06 6 24C6 33.94 14.06 42 24 42C33.94 42 42 33.94 42 24C42 14.06 33.94 6 24 6ZM24 38C16.28 38 10 31.72 10 24C10 16.28 16.28 10 24 10C31.72 10 38 16.28 38 24C38 31.72 31.72 38 24 38Z" fill="#FFFFFF"/>
+                                <path d="M24 14C18.48 14 14 18.48 14 24C14 29.52 18.48 34 24 34C29.52 34 34 29.52 34 24C34 18.48 29.52 14 24 14ZM30 25H25V30H23V25H18V23H23V18H25V23H30V25Z" fill="#FFFFFF"/>
+                            </svg>
+                        </div>
+                        <div class="payment-provider-info">
+                            <h3>Або оберіть інший спосіб оплати:</h3>
+                            <p>Швидко та безпечно через monobank acquiring</p>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-features">
+                        <div class="feature">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#4CAF50"/>
+                            </svg>
+                            <span>Захищено SSL та 3D Secure</span>
+                        </div>
+                        <div class="feature">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#2196F3"/>
+                            </svg>
+                            <span>Миттєве підтвердження платежу</span>
+                        </div>
+                    </div>
+                    
+                    <form method="post" action="{% url 'payment:create_monobank_invoice' payment_link.unique_id %}" class="monobank-payment-form">
+                        {% csrf_token %}
+                        
+                        <div class="payment-buttons-container">
+                            <!-- First row: Apple Pay + Google Pay -->
+                            <div class="payment-buttons-row two-buttons">
+                                <!-- Apple Pay Button -->
+                                <button type="submit" name="payment_method" value="apple_pay" class="payment-btn apple-pay-btn">
+                                    <div class="payment-btn-content">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" fill="currentColor"/>
+                                        </svg>
+                                        <span>Apple Pay</span>
+                                    </div>
+                                    <div class="payment-amount">{{ payment_link.final_amount_uah|floatformat:2 }} ₴</div>
+                                </button>
+                                
+                                <!-- Google Pay Button -->
+                                <button type="submit" name="payment_method" value="google_pay" class="payment-btn google-pay-btn">
+                                    <div class="payment-btn-content">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.66 15.63 16.88 16.78 15.71 17.57V20.34H19.28C21.36 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4"/>
+                                            <path d="M12 23C15.24 23 17.95 21.92 19.28 20.34L15.71 17.57C14.74 18.22 13.48 18.62 12 18.62C8.91 18.62 6.26 16.67 5.4 13.9H1.72V16.75C3.04 19.37 7.24 23 12 23Z" fill="#34A853"/>
+                                            <path d="M5.4 13.9C5.18 13.25 5.05 12.55 5.05 11.8C5.05 11.05 5.18 10.35 5.4 9.7V6.85H1.72C0.95 8.38 0.5 10.04 0.5 11.8C0.5 13.56 0.95 15.22 1.72 16.75L5.4 13.9Z" fill="#FBBC05"/>
+                                            <path d="M12 4.98C13.66 4.98 15.16 5.58 16.32 6.69L19.5 3.51C17.95 2.08 15.24 1 12 1C7.24 1 3.04 4.63 1.72 7.25L5.4 10.1C6.26 7.33 8.91 4.98 12 4.98Z" fill="#EA4335"/>
+                                        </svg>
+                                        <span>Google Pay</span>
+                                    </div>
+                                    <div class="payment-amount">{{ payment_link.final_amount_uah|floatformat:2 }} ₴</div>
+                                </button>
+                            </div>
+                            
+                            <!-- Second row: Card payment -->
+                            <div class="payment-buttons-row single-button">
+                                <!-- Card Payment Button -->
+                                <button type="button" class="payment-btn card-pay-btn" id="showCardFormBtn">
+                                    <div class="payment-btn-content">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M20 4H4C2.89 4 2.01 4.89 2.01 6L2 18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4ZM20 18H4V12H20V18ZM20 8H4V6H20V8Z" fill="currentColor"/>
+                                        </svg>
+                                        <span>Картка Visa/Mastercard</span>
+                                        <svg class="expand-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7 10L12 15L17 10H7Z" fill="currentColor"/>
+                                        </svg>
+                                    </div>
+                                    <div class="payment-amount">{{ payment_link.final_amount_uah|floatformat:2 }} ₴</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <p class="card-button-hint" id="cardButtonHint"><small>👆 Натисніть щоб ввести дані картки</small></p>
+                    </form>
+                    
+                    <!-- Card Form (hidden by default) -->
+                    <div class="card-payment-form" id="cardPaymentForm" style="display: none;">
+                        <h4>Введіть дані вашої картки</h4>
+                        <form method="post" action="{% url 'payment:create_monobank_invoice' payment_link.unique_id %}" class="card-details-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="card">
+                            
+                            <div class="card-input-group">
+                                <label for="card-number">Номер картки</label>
+                                <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                            </div>
+                            
+                            <div class="card-input-row">
+                                <div class="card-input-group">
+                                    <label for="card-expiry">Термін дії</label>
+                                    <input type="text" id="card-expiry" name="card_expiry" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                                <div class="card-input-group">
+                                    <label for="card-cvv">CVV</label>
+                                    <input type="text" id="card-cvv" name="card_cvv" placeholder="123" maxlength="3" required>
+                                </div>
+                            </div>
+                            
+                            <div class="card-input-group">
+                                <label for="card-holder">Ім'я власника картки</label>
+                                <input type="text" id="card-holder" name="card_holder" placeholder="IVAN IVANOV" required>
+                            </div>
+                            
+                            <div class="card-form-actions">
+                                <button type="button" class="button button-secondary" id="cancelCardForm">Скасувати</button>
+                                <button type="submit" class="button button-primary card-submit-btn">
+                                    Оплатити {{ payment_link.final_amount_uah|floatformat:2 }} ₴
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="payment-methods-explanation">
+                        <h4>Способи оплати:</h4>
+                        <ul>
+                            <li><strong>Apple Pay / Google Pay</strong> - швидка оплата через ваш телефон або браузер. Перенаправить на захищену сторінку monobank.</li>
+                            <li><strong>Картка Visa/Mastercard</strong> - введіть дані картки прямо тут. Оплата обробляється безпечно через monobank.</li>
+                        </ul>
+                        <p><small><i class="security-icon">🔒</i> Всі платежі захищені 3D Secure та SSL шифруванням</small></p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -230,7 +427,7 @@
             function checkTimeRemaining() {
                 const now = new Date().getTime();
                 const distance = countDownDate - now;
-                
+
                 if (distance < 0) {
                     // Час вже минув
                     timerElement.innerHTML = "ЧАС ВИЙШОВ";
@@ -280,6 +477,44 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Додаємо функціонал для прокрутки до форми оплати
+            const scrollToPaymentBtn = document.getElementById('scrollToPaymentBtn');
+            if (scrollToPaymentBtn) {
+                scrollToPaymentBtn.addEventListener('click', function() {
+                    const paymentFormSection = document.querySelector('.payment-form');
+                    if (paymentFormSection) {
+                        paymentFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+            
+            // Примусово встановлюємо стилі для елементів з валютою
+            const amountUahElements = document.querySelectorAll('.amount-uah');
+            amountUahElements.forEach(function(element) {
+                element.style.color = '#4CAF50';
+                element.style.fontWeight = '700';
+                element.style.fontSize = '1.15em';
+            });
+            
+            const totalUahRow = document.querySelectorAll('.total-uah-row');
+            totalUahRow.forEach(function(element) {
+                element.style.backgroundColor = 'rgba(76, 175, 80, 0.08)';
+                element.style.borderTop = '2px solid rgba(76, 175, 80, 0.3)';
+                element.style.padding = '12px';
+                element.style.borderRadius = '8px';
+                element.style.marginTop = '10px';
+            });
+            
+            const currencyDisplayBlock = document.querySelectorAll('.currency-display-block');
+            currencyDisplayBlock.forEach(function(element) {
+                element.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+                element.style.boxShadow = '0 3px 12px rgba(0, 0, 0, 0.08)';
+                element.style.border = '1px solid rgba(0, 0, 0, 0.12)';
+                element.style.borderRadius = '10px';
+                element.style.padding = '18px';
+                element.style.margin = '20px 0';
+            });
+            
             // Додаємо функціонал кнопкам копіювання
             const copyButtons = document.querySelectorAll('.copy-btn');
             
@@ -328,6 +563,117 @@
                         btnWrapper.classList.remove('bottom');
                         companyDescriptionDiv.insertBefore(btnWrapper, companyDetails);
                     }
+                });
+            }
+            
+            // Функціонал для розгортання інструкцій з оплати
+            const paymentInstructionsBtn = document.getElementById('paymentInstructionsBtn');
+            const paymentInstructionsDetails = document.getElementById('paymentInstructionsDetails');
+            
+            if (paymentInstructionsBtn && paymentInstructionsDetails) {
+                paymentInstructionsBtn.addEventListener('click', function() {
+                    const btnWrapper = this.parentElement; // Отримуємо wrapper для кнопки
+                    const paymentDescriptionDiv = btnWrapper.parentElement; // Отримуємо батьківський div
+                    
+                    paymentInstructionsDetails.classList.toggle('visible');
+                    this.classList.toggle('active');
+                    
+                    if (paymentInstructionsDetails.classList.contains('visible')) {
+                        // Якщо блок розгорнутий, переміщуємо кнопку в кінець
+                        this.textContent = 'Згорнути';
+                        btnWrapper.classList.add('bottom');
+                        paymentDescriptionDiv.appendChild(btnWrapper);
+                    } else {
+                        // Якщо блок згорнутий, повертаємо кнопку після першого абзацу
+                        this.textContent = 'Детальніше';
+                        btnWrapper.classList.remove('bottom');
+                        paymentDescriptionDiv.insertBefore(btnWrapper, paymentInstructionsDetails);
+                    }
+                });
+            }
+            
+            // Функціонал для показу/приховування форми картки
+            const showCardFormBtn = document.getElementById('showCardFormBtn');
+            const cardPaymentForm = document.getElementById('cardPaymentForm');
+            const cancelCardForm = document.getElementById('cancelCardForm');
+            const cardButtonHint = document.getElementById('cardButtonHint');
+            
+            if (showCardFormBtn && cardPaymentForm) {
+                showCardFormBtn.addEventListener('click', function() {
+                    // Toggle форми
+                    if (cardPaymentForm.style.display === 'none' || cardPaymentForm.style.display === '') {
+                        // Відкриваємо форму
+                        cardPaymentForm.style.display = 'block';
+                        cardPaymentForm.classList.add('show');
+                        showCardFormBtn.classList.add('form-expanded');
+                        if (cardButtonHint) {
+                            cardButtonHint.innerHTML = '<small>👆 Натисніть щоб закрити форму</small>';
+                        }
+                        cardPaymentForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        // Закриваємо форму
+                        cardPaymentForm.style.display = 'none';
+                        cardPaymentForm.classList.remove('show');
+                        showCardFormBtn.classList.remove('form-expanded');
+                        if (cardButtonHint) {
+                            cardButtonHint.innerHTML = '<small>👆 Натисніть щоб ввести дані картки</small>';
+                        }
+                    }
+                });
+            }
+            
+            if (cancelCardForm) {
+                cancelCardForm.addEventListener('click', function() {
+                    cardPaymentForm.style.display = 'none';
+                    cardPaymentForm.classList.remove('show');
+                    showCardFormBtn.classList.remove('form-expanded');
+                    if (cardButtonHint) {
+                        cardButtonHint.innerHTML = '<small>👆 Натисніть щоб ввести дані картки</small>';
+                    }
+                });
+            }
+            
+            // Форматування номера картки
+            const cardNumberInput = document.getElementById('card-number');
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                    let formattedValue = '';
+                    for (let i = 0; i < value.length; i++) {
+                        if (i > 0 && i % 4 === 0) {
+                            formattedValue += ' ';
+                        }
+                        formattedValue += value[i];
+                    }
+                    e.target.value = formattedValue;
+                });
+            }
+            
+            // Форматування терміну дії
+            const cardExpiryInput = document.getElementById('card-expiry');
+            if (cardExpiryInput) {
+                cardExpiryInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // Обмеження CVV до цифр
+            const cardCvvInput = document.getElementById('card-cvv');
+            if (cardCvvInput) {
+                cardCvvInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                });
+            }
+            
+            // Форматування імені власника (тільки літери та пробіли)
+            const cardHolderInput = document.getElementById('card-holder');
+            if (cardHolderInput) {
+                cardHolderInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.replace(/[^a-zA-ZА-Яа-яІіЇїЄє\s]/g, '').toUpperCase();
                 });
             }
         });

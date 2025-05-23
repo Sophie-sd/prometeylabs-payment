@@ -29,7 +29,7 @@ PAYMENT_INFO_DEFAULT_WITH_HTML = '''<p><strong>Умови оплати</strong><
 Заявки на повернення розглядаються індивідуально, у строк до 5 робочих днів.</p>
 
 <p><strong>Контакти для звернень</strong><br>
-З усіх питань, пов'язаних з оплатою, прохання звертатися на електронну адресу: prometeylabs@gmail.com<br>
+З усіх питань, пов\'язаних з оплатою, прохання звертатися на електронну адресу: prometeylabs@gmail.com<br>
 або в telegram <a href="https://t.me/PrometeyLabs" target="_blank" rel="noopener noreferrer">@PrometeyLabs</a></p>'''
 
 
@@ -47,18 +47,32 @@ class PaymentLink(models.Model):
     # Унікальний ідентифікатор для посилання
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     
-    # Інформація про клієнта (можна розширити до ForeignKey на модель Клієнта пізніше)
+    # Інформація про клієнта
     client_name = models.CharField(max_length=255, verbose_name="Ім'я клієнта")
-    client_email = models.EmailField(verbose_name="Email клієнта", blank=True, null=True) # Опціонально
+    client_email = models.EmailField(verbose_name="Email клієнта", blank=True, null=True)
 
-    # Деталі платежу
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сума до оплати")
-    currency_choices = [
-        ('UAH', 'Гривня'),
-        ('USD', 'Долар США'),
-        ('EUR', 'Євро'),
-    ]
-    currency = models.CharField(max_length=3, choices=currency_choices, default='UAH', verbose_name="Валюта")
+    # Нова схема оплати USD -> UAH
+    amount_usd = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="Сума в USD"
+    )
+    exchange_rate_usd_to_uah = models.DecimalField(
+        max_digits=10, 
+        decimal_places=4, 
+        verbose_name="Курс USD/UAH",
+        help_text="Поточний курс обміну долара до гривні (наприклад, 39.50)"
+    )
+    final_amount_uah = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="Кінцева сума до оплати в UAH", 
+        blank=True, 
+        null=True,
+        editable=False, 
+        help_text="Автоматично розрахована сума до оплати в гривнях"
+    )
+    
     description = models.TextField(verbose_name="Опис платежу (для клієнта)")
 
     # Інформація, що відображається на сторінці оплати
@@ -66,12 +80,12 @@ class PaymentLink(models.Model):
         verbose_name="Інформація про компанію",
         blank=True, 
         default=COMPANY_INFO_DEFAULT,
-        editable=False # Робимо нередагованим
+        editable=False
     )
     payment_instructions = models.TextField(
         verbose_name="Інформація щодо оплати та повернення", 
         blank=True,
-        default=PAYMENT_INFO_DEFAULT_WITH_HTML, # Використовуємо нову константу з HTML
+        default=PAYMENT_INFO_DEFAULT_WITH_HTML,
         editable=False 
     )
 
@@ -81,24 +95,22 @@ class PaymentLink(models.Model):
     # Статус посилання
     STATUS_CHOICES = [
         ('new', 'Нове (не відкрито)'),
-        ('pending', 'Відкрито (очікує оплати)'),
+        ('pending', 'Очікує оплати'),
         ('paid', 'Оплачено'),
         ('expired', 'Протерміновано'), 
         ('deactivated', 'Деактивовано'),
     ]
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', verbose_name="Статус")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', verbose_name="Статус", db_index=True)
 
     # Технічні поля
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата створення в адмінці")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата створення в адмінці", db_index=True)
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата оновлення")
     
-    # Поле для збереження URL посилання (буде генеруватися)
-    # link_url = models.URLField(max_length=500, blank=True, editable=False, verbose_name="Унікальне посилання")
-
+    # Термін дії посилання
     duration_minutes = models.IntegerField(
         verbose_name="Термін дії посилання",
         choices=DURATION_CHOICES, 
-        default=1440, # За замовчуванням 1 день
+        default=1440,
         help_text="Відлік починається з моменту першого відкриття посилання клієнтом. Оберіть 'Без обмеження часу' для безстрокового посилання."
     )
     first_opened_at = models.DateTimeField(
@@ -111,6 +123,29 @@ class PaymentLink(models.Model):
         verbose_name="Дійсне до", 
         null=True, 
         blank=True, 
+        editable=False,
+        db_index=True
+    )
+
+    # Monobank integration fields
+    monobank_invoice_id = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True, 
+        verbose_name="ID інвойсу в monobank",
+        editable=False,
+        db_index=True
+    )
+    monobank_invoice_url = models.URLField(
+        blank=True, 
+        null=True, 
+        verbose_name="URL для оплати в monobank",
+        editable=False
+    )
+    payment_processed_at = models.DateTimeField(
+        blank=True, 
+        null=True, 
+        verbose_name="Дата і час обробки платежу",
         editable=False
     )
 
@@ -118,24 +153,25 @@ class PaymentLink(models.Model):
         # Якщо обрано "Без обмеження часу" і є дата expires_at, очистимо її
         if self.duration_minutes == 0 and self.expires_at is not None:
             self.expires_at = None
-            # Також можемо скинути first_opened_at, якщо логіка цього вимагає, 
-            # але поки що залишимо: якщо посилання було безстроковим, а потім йому дали термін,
-            # то first_opened_at має зберегтися, якщо вже було відкрито.
-            # Якщо ж воно стало безстроковим, то first_opened_at і expires_at не важливі.
+            
+        # Розрахунок кінцевої суми оплати в UAH
+        if self.amount_usd is not None and self.exchange_rate_usd_to_uah is not None:
+            self.final_amount_uah = self.amount_usd * self.exchange_rate_usd_to_uah
+
         super().save(*args, **kwargs)
 
     def is_expired(self):
-        if self.duration_minutes == 0: # Без обмеження часу
+        if self.duration_minutes == 0:  # Без обмеження часу
             return False
         if self.expires_at:
             return timezone.now() > self.expires_at
-        # Якщо expires_at ще не встановлено (посилання не відкривалося), 
-        # але є duration_minutes > 0, то воно потенційно може стати протермінованим.
-        # Однак, фактично протермінованим воно стає тільки після встановлення expires_at.
         return False 
 
     def __str__(self):
-        return f"Платіжне посилання для {self.client_name or 'N/A'} - {self.amount} {self.currency} ({self.get_status_display()})"
+        details = f"{self.amount_usd} USD"
+        if self.final_amount_uah is not None:
+            details += f" (екв. {self.final_amount_uah} UAH)"
+        return f"Платіжне посилання для {self.client_name} - {details} ({self.get_status_display()})"
 
     def get_absolute_url(self):
         """Повертає URL-адресу для доступу до сторінки оплати цього посилання."""
@@ -145,3 +181,7 @@ class PaymentLink(models.Model):
         verbose_name = "Платіжне посилання"
         verbose_name_plural = "Платіжні посилання"
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['expires_at']),
+        ]

@@ -1,0 +1,28 @@
+{% comment %}
+    Шаблон для відображення валют та конвертацій
+    Використовується на сторінці оплати для відображення деталей суми платежу
+    
+    Параметри:
+    - payment_link: об'єкт PaymentLink
+{% endcomment %}
+
+{% if payment_link.amount_usd and payment_link.exchange_rate_usd_to_uah and payment_link.final_amount_uah %}
+<div class="payment-amounts currency-display-block currency-block-wrapper">
+    <div class="payment-amount-row currency-row">
+        <span class="payment-amount-label currency-label"><strong>Сума в USD:</strong></span>
+        <span class="main-amount currency-value">{{ payment_link.amount_usd|floatformat:2 }} USD</span>
+    </div>
+    
+    <div class="payment-amount-row exchange-rate-row currency-exchange-row">
+        <span class="payment-amount-label currency-label"><strong>Курс обміну:</strong></span>
+        <span class="exchange-rate-value currency-rate-value">1 USD = {{ payment_link.exchange_rate_usd_to_uah|floatformat:2 }} UAH</span>
+    </div>
+    
+    <div class="payment-amount-row total-uah-row currency-total-row">
+        <span class="payment-amount-label currency-label"><strong>Сума до сплати:</strong></span>
+        <span class="amount-uah currency-final-amount">{{ payment_link.final_amount_uah|floatformat:2 }} UAH</span>
+    </div>
+</div>
+{% else %}
+<p style="color: red;"><strong>Помилка:</strong> Не вказано суму для оплати або необхідні дані для розрахунку відсутні.</p>
+{% endif %} 

@@ -176,6 +176,41 @@ h2::after {
     padding-top: 15px;
 }
 
+.company-website {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.website-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 191, 166, 0.1);
+    color: #00BFA6;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 191, 166, 0.2);
+}
+
+.website-link svg {
+    margin-right: 8px;
+}
+
+.website-link:hover {
+    background-color: rgba(0, 191, 166, 0.2);
+    color: #00856f;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 191, 166, 0.15);
+    text-decoration: none;
+}
+
+.website-link:active {
+    transform: translateY(0);
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -232,6 +267,7 @@ h2::after {
     border: 1px solid rgba(255, 109, 0, 0.2);
     border-radius: 8px;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .timer-warning {
@@ -279,6 +315,134 @@ h2::after {
     font-size: 0.9em;
     color: var(--color-text-sub);
     margin-left: 2px;
+}
+
+/* Стилі для відображення суми в декількох валютах - НОВА ВЕРСІЯ */
+.currency-display-block {
+    background-color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08) !important;
+    border: 2px solid #4CAF50 !important;
+    border-radius: 10px !important;
+    padding: 18px !important;
+    margin: 25px 0 !important;
+}
+
+.currency-block-wrapper-2023 {
+    background-color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08) !important;
+    border: 2px solid #4CAF50 !important;
+    border-radius: 10px !important;
+    padding: 18px !important;
+    margin: 25px 0 !important;
+}
+
+.currency-exchange-row-2023 {
+    background-color: rgba(255, 109, 0, 0.08) !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    margin: 8px 0 !important;
+}
+
+.currency-total-row-2023 {
+    background-color: rgba(76, 175, 80, 0.08) !important;
+    border-top: 2px solid rgba(76, 175, 80, 0.3) !important;
+    margin-top: 10px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+}
+
+.currency-final-amount-2023 {
+    color: #4CAF50 !important;
+    font-weight: 700 !important;
+    font-size: 1.15em !important;
+}
+
+.exchange-rate-row {
+    background-color: rgba(255, 109, 0, 0.08) !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    margin: 8px 0 !important;
+}
+
+.total-uah-row {
+    background-color: rgba(76, 175, 80, 0.08) !important;
+    border-top: 2px solid rgba(76, 175, 80, 0.3) !important;
+    margin-top: 10px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+}
+
+.amount-uah {
+    color: #4CAF50 !important;
+    font-weight: 700 !important;
+    font-size: 1.15em !important;
+}
+
+/* Стилі для відображення суми в декількох валютах - СТАРА ВЕРСІЯ */
+.payment-amounts {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.payment-amount-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.payment-amount-row:last-child {
+    border-bottom: none;
+}
+
+.payment-amount-label {
+    color: var(--color-text-main);
+}
+
+/* Кнопка оплати в блоці інформації про платіж */
+.payment-cta {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.scroll-to-payment {
+    font-size: 0.95rem;
+    padding: 10px 20px;
+    box-shadow: 0 4px 12px rgba(255, 109, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.scroll-to-payment:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(255, 109, 0, 0.25);
+}
+
+.scroll-to-payment:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(255, 109, 0, 0.2);
+}
+
+/* Зелена кнопка оплати */
+.green-button {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2) !important;
+}
+
+.green-button:hover {
+    background-color: #43A047 !important;
+    border-color: #43A047 !important;
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.25) !important;
+}
+
+.green-button:active {
+    background-color: #388E3C !important;
+    border-color: #388E3C !important;
+    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.2) !important;
 }
 
 /* Кнопки */
@@ -375,6 +539,11 @@ a:hover {
 /* Реквізити */
 .payment-requisites {
     margin-bottom: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .payment-requisites h3 {
@@ -382,26 +551,104 @@ a:hover {
     font-weight: 600;
     color: var(--color-text-main);
     margin-bottom: 12px;
-    text-align: left;
+    text-align: center;
     padding-bottom: 8px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .requisites-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.requisites-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1px;
+    width: 100%;
 }
 
 .requisites-field {
     display: flex;
     flex-direction: column;
     background-color: rgba(255, 255, 255, 0.95);
-    padding: 8px 10px;
-    border-radius: 8px;
+    padding: 4px 6px;
+    border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    flex: 1;
+    min-width: 140px;
+}
+
+.requisites-field-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.requisites-icon {
+    margin-right: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+    color: #555555;
+    flex-shrink: 0;
+}
+
+.requisites-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    margin-right: 5px;
+    overflow: hidden;
+}
+
+.requisites-content label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--color-text-sub);
+    margin-bottom: 0;
+    line-height: 1;
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.requisites-content span {
+    font-size: 0.75rem;
+    line-height: 1.1;
+    word-break: break-word;
+}
+
+.bank-details .requisites-content span,
+.payment-purpose .requisites-content span {
+    font-size: 0.7rem;
+    line-height: 1.1;
+}
+
+.copy-btn {
+    background-color: rgba(255, 109, 0, 0.08);
+    border: none;
+    color: var(--color-accent-primary);
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: center;
+    min-width: 85px;
+    text-align: center;
 }
 
 .requisites-field:hover {
@@ -411,13 +658,19 @@ a:hover {
     transform: translateY(-1px);
 }
 
+.requisites-content strong {
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
 /* Спеціальні стилі для банку - без рамки та ефектів */
 .bank-details {
     background-color: transparent;
     border: none;
     box-shadow: none;
-    padding: 2px 10px;
+    padding: 0 6px;
     margin: 0;
+    flex-basis: 100%;
 }
 
 .bank-details:hover {
@@ -427,69 +680,13 @@ a:hover {
     border: none;
 }
 
-.requisites-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
+.payment-purpose {
+    flex-basis: 100%;
 }
 
-.requisites-icon {
-    margin-right: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 24px;
-    background-color: rgba(0, 0, 0, 0.04);
-    border-radius: 50%;
-    color: #555555;
-}
-
-.requisites-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    margin-bottom: 5px;
-}
-
-.requisites-content label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--color-text-sub);
-    margin-bottom: 0;
-}
-
-.requisites-content span {
-    font-size: 0.8rem;
-    line-height: 1.2;
-    word-break: break-word;
-}
-
-.requisites-content strong {
-    font-weight: 600;
-    color: var(--color-text-main);
-}
-
-.bank-details .requisites-content span,
-.payment-purpose .requisites-content span {
-    font-size: 0.75rem;
-    line-height: 1.2;
-}
-
-.copy-btn {
-    background-color: rgba(255, 109, 0, 0.08);
-    border: none;
-    color: var(--color-accent-primary);
-    cursor: pointer;
-    padding: 3px 6px;
-    font-size: 0.75rem;
-    border-radius: 4px;
-    transition: all 0.2s;
-    font-weight: 500;
-    white-space: nowrap;
-    align-self: flex-start;
-    margin-top: 3px;
+.requisites-icon svg {
+    width: 12px;
+    height: 12px;
 }
 
 .copy-btn:hover {
@@ -530,18 +727,82 @@ a:hover {
 /* Адаптивність для більших екранів */
 @media (min-width: 640px) {
     .requisites-grid {
-        grid-template-areas:
-            "fop ipn"
-            "iban iban"
-            "bank bank"
-            "purpose purpose";
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .requisites-field {
+        flex: 1 1 auto;
+    }
+
+    .requisites-field:nth-child(1),
+    .requisites-field:nth-child(2) {
+        flex-basis: calc(50% - 2px);
+    }
+
+    .requisites-field:nth-child(3) {
+        flex-basis: 100%;
+    }
+
+    .bank-details {
+        flex-basis: 100%;
+    }
+
+    .payment-purpose {
+        flex-basis: 100%;
+    }
+
+    .copy-btn {
+        margin-left: 10px;
+    }
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 639px) {
+    .requisites-field {
+        margin-bottom: 6px;
+        position: relative;
+        padding-bottom: 40px;
     }
     
-    .requisites-field:nth-child(1) { grid-area: fop; }
-    .requisites-field:nth-child(2) { grid-area: ipn; }
-    .requisites-field:nth-child(3) { grid-area: iban; }
-    .requisites-field:nth-child(4) { grid-area: bank; }
-    .requisites-field:nth-child(5) { grid-area: purpose; }
+    .requisites-field-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .requisites-header {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+    
+    .copy-btn {
+        width: 100%;
+        text-align: center;
+        padding: 8px;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        bottom: 8px;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+    }
+    
+    .bank-details {
+        padding-bottom: 0;
+    }
+    
+    .requisites-content {
+        margin-right: 0;
+    }
+    
+    .payment-requisites h3 {
+        font-size: 0.95rem;
+    }
 }
 
 /* Адаптивність */
@@ -571,21 +832,11 @@ a:hover {
 }
 
 /* Реквізити */
-.requisites-field {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 12px 15px;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    transition: all 0.2s ease;
-}
-
 .requisites-field:hover {
     background-color: rgba(255, 255, 255, 1);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     border-color: rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
 }
 
 .requisites-field span {
@@ -595,32 +846,6 @@ a:hover {
 .requisites-field strong {
     font-weight: 600;
     color: var(--color-text-main);
-}
-
-.copy-btn {
-    background-color: rgba(255, 109, 0, 0.08);
-    border: none;
-    color: var(--color-accent-primary);
-    cursor: pointer;
-    padding: 6px 12px;
-    font-size: 0.85rem;
-    border-radius: 6px;
-    transition: all 0.2s;
-    font-weight: 500;
-}
-
-.copy-btn:hover {
-    background-color: rgba(255, 109, 0, 0.15);
-    transform: translateY(-1px);
-}
-
-.copy-btn:active {
-    transform: scale(0.95);
-}
-
-.copy-success {
-    background-color: rgba(0, 150, 0, 0.1);
-    color: #007500;
 }
 
 /* Стилі для інструкцій з оплати */

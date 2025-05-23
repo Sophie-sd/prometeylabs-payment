@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платіж успішний - PrometeyLabs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .success-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: successPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .success-message {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .payment-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .payment-details h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+        
+        .actions {
+            margin-top: 30px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .button-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .button-primary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+        
+        .button-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .button-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 600px) {
+            .success-container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .button {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="white"/>
+            </svg>
+        </div>
+        
+        <h1>Платіж успішний!</h1>
+        <p class="success-message">
+            Ваш платіж було успішно оброблено. Дякуємо за довіру до PrometeyLabs!
+        </p>
+        
+        <div class="payment-details">
+            <h3>Деталі платежу</h3>
+            <div class="detail-row">
+                <span>Клієнт:</span>
+                <span>{{ payment_link.client_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Опис:</span>
+                <span>{{ payment_link.description }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Сума USD:</span>
+                <span>${{ payment_link.amount_usd|floatformat:2 }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Сума оплачено:</span>
+                <span>{{ payment_link.final_amount_uah|floatformat:2 }} ₴</span>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="https://t.me/PrometeyLabs" target="_blank" class="button button-primary">
+                Написати в Telegram
+            </a>
+            <a href="mailto:prometeylabs@gmail.com" class="button button-secondary">
+                Написати Email
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>ID платежу: {{ payment_link.unique_id }}</p>
+            <p>&copy; 2025 PrometeyLabs. Всі права захищено.</p>
+        </div>
+    </div>
+</body>
+</html> 

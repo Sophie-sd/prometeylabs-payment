@@ -1,4 +1,4 @@
-{% load static %}
+{% load static tz %}
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -52,7 +52,7 @@
             <p>На жаль, це платіжне посилання більше не дійсне.</p>
             <p>Статус посилання: <strong>{{ payment_link.get_status_display }}</strong>.</p>
             {% if payment_link.status == 'expired' and payment_link.expires_at %}
-                <p>Дійсне до: {{ payment_link.expires_at|date:"d.m.Y H:i:s" }}</p>
+                <p>Дійсне до: {{ payment_link.expires_at|timezone:"Europe/Kyiv"|date:"d.m.Y H:i:s" }} (Київ, Україна)</p>
             {% endif %}
             <p>Якщо ви вважаєте, що це помилка, будь ласка, зв'яжіться з нами.</p>
             
