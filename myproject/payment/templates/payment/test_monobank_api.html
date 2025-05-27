@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Monobank API | PrometeyLabs</title>
+    <style>
+        body { font-family: Inter, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .status { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .success { background: #e8f5e8; border: 1px solid #4caf50; color: #2e7d32; }
+        .error { background: #ffeaa7; border: 1px solid #fdcb6e; color: #d63031; }
+        .info { background: #e3f2fd; border: 1px solid #2196f3; color: #1565c0; }
+        .config-item { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 4px; }
+        .test-btn { background: #000; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; }
+        .test-btn:hover { background: #333; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 6px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Тест Monobank API</h1>
+    
+    <div class="config-section">
+        <h2>Конфігурація</h2>
+        
+        <div class="config-item">
+            <strong>Токен налаштовано:</strong> 
+            {% if token_configured %}
+                <span style="color: green;">✓ Так</span>
+            {% else %}
+                <span style="color: red;">✗ Ні</span>
+            {% endif %}
+        </div>
+        
+        <div class="config-item">
+            <strong>Site URL:</strong> {{ site_url }}
+        </div>
+    </div>
+    
+    {% if error %}
+        <div class="status error">
+            <strong>Помилка:</strong> {{ error }}
+        </div>
+    {% endif %}
+    
+    {% if success %}
+        <div class="status success">
+            <strong>Успіх!</strong> API працює правильно. Інвойс створено.
+        </div>
+        
+        <div class="status info">
+            <strong>Дані інвойсу:</strong>
+            <pre>{{ invoice_data|pprint }}</pre>
+        </div>
+        
+        <div class="status info">
+            <strong>Тестове платіжне посилання:</strong>
+            <p><a href="{% url 'payment:payment_page_view' test_payment.unique_id %}" target="_blank">
+                Відкрити сторінку оплати
+            </a></p>
+        </div>
+    {% endif %}
+    
+    <div class="test-section">
+        <h2>Запустити тест</h2>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="test-btn">Створити тестовий інвойс</button>
+        </form>
+        <p><small>Цей тест створить тестове платіжне посилання та спробує створити інвойс в Monobank.</small></p>
+    </div>
+    
+    <div class="documentation">
+        <h2>Документація</h2>
+        <ul>
+            <li><a href="https://monobank.ua/api-docs/acquiring/metody/internet-ekvairynh/post--api--merchant--invoice--create" target="_blank">
+                Документація API створення інвойсу
+            </a></li>
+            <li><a href="https://acquiring.monobank.ua/docs/online_acquiring/brandbook" target="_blank">
+                Брендбук Monobank
+            </a></li>
+        </ul>
+    </div>
+    
+    <p><a href="/admin/">← Повернутися до адміністрування</a></p>
+</body>
+</html> 

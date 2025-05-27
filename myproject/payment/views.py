@@ -9,6 +9,7 @@ import json
 import logging
 from .models import PaymentLink
 from .monobank_service import MonobankAcquiringService
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -81,57 +82,20 @@ def create_monobank_invoice(request, link_uuid):
         # Ініціалізуємо сервіс monobank
         mono_service = MonobankAcquiringService()
         
-        # Якщо це прямий платіж карткою - збираємо дані картки
-        if payment_method == 'card' and request.POST.get('card_number'):
-            card_data = {
-                'pan': request.POST.get('card_number', '').replace(' ', ''),
-                'exp': request.POST.get('card_expiry', '').replace('/', ''),
-                'cvv': request.POST.get('card_cvv', ''),
-                'holder': request.POST.get('card_holder', '')
-            }
+        # Створюємо інвойс з перенаправленням на платіжну сторінку Monobank
+        invoice_data = mono_service.create_invoice(payment_link, payment_method=payment_method)
+        
+        if invoice_data:
+            # Зберігаємо дані інвойсу
+            payment_link.monobank_invoice_id = invoice_data.get('invoiceId')
+            payment_link.monobank_invoice_url = invoice_data.get('pageUrl')
+            payment_link.save(update_fields=['monobank_invoice_id', 'monobank_invoice_url'])
             
-            # Валідація даних картки
-            if not all([card_data['pan'], card_data['exp'], card_data['cvv'], card_data['holder']]):
-                messages.error(request, 'Будь ласка, заповніть всі поля даних картки.')
-                return redirect('payment:payment_page_view', link_uuid=link_uuid)
-            
-            # Створюємо прямий платіж
-            payment_result = mono_service.create_direct_payment(payment_link, card_data)
-            
-            if payment_result and payment_result.get('status') == 'success':
-                # Платіж успішний
-                payment_link.monobank_invoice_id = payment_result.get('invoiceId')
-                payment_link.status = 'paid'
-                payment_link.payment_processed_at = timezone.now()
-                payment_link.save(update_fields=['monobank_invoice_id', 'status', 'payment_processed_at'])
-                
-                return redirect('payment:payment_success', link_uuid=link_uuid)
-            elif payment_result and payment_result.get('tdsUrl'):
-                # Потрібна 3DS автентифікація
-                payment_link.monobank_invoice_id = payment_result.get('invoiceId')
-                payment_link.save(update_fields=['monobank_invoice_id'])
-                
-                return redirect(payment_result.get('tdsUrl'))
-            else:
-                # Платіж не вдався
-                error_message = payment_result.get('failureReason', 'Помилка при обробці платежу')
-                messages.error(request, f'Платіж не вдався: {error_message}')
-                return redirect('payment:payment_failure', link_uuid=link_uuid)
+            # Перенаправляємо на сторінку оплати monobank
+            return redirect(invoice_data.get('pageUrl'))
         else:
-            # Створюємо звичайний інвойс з перенаправленням
-            invoice_data = mono_service.create_invoice(payment_link, payment_method=payment_method)
-            
-            if invoice_data:
-                # Зберігаємо дані інвойсу
-                payment_link.monobank_invoice_id = invoice_data.get('invoiceId')
-                payment_link.monobank_invoice_url = invoice_data.get('pageUrl')
-                payment_link.save(update_fields=['monobank_invoice_id', 'monobank_invoice_url'])
-                
-                # Перенаправляємо на сторінку оплати monobank
-                return redirect(invoice_data.get('pageUrl'))
-            else:
-                messages.error(request, 'Помилка при створенні платежу. Спробуйте пізніше.')
-                return redirect('payment:payment_page_view', link_uuid=link_uuid)
+            messages.error(request, 'Помилка при створенні платежу. Спробуйте пізніше.')
+            return redirect('payment:payment_page_view', link_uuid=link_uuid)
             
     except Exception as e:
         logger.error(f"Error creating monobank invoice: {str(e)}")
@@ -144,14 +108,19 @@ def create_monobank_invoice(request, link_uuid):
 def monobank_webhook(request):
     """
     Обробка webhook від monobank
+    Згідно з документацією: зміст тіла запиту ідентичний відповіді запиту "Статус рахунку"
     """
     try:
         data = json.loads(request.body)
         invoice_id = data.get('invoiceId')
         status = data.get('status')
-        reference = data.get('reference')  # Це наш unique_id
+        
+        # Отримуємо reference з merchantPaymInfo
+        merchant_paym_info = data.get('merchantPaymInfo', {})
+        reference = merchant_paym_info.get('reference')
         
         logger.info(f"Monobank webhook received: invoice_id={invoice_id}, status={status}, reference={reference}")
+        logger.info(f"Full webhook data: {json.dumps(data, indent=2, ensure_ascii=False)}")
         
         if reference:
             try:
@@ -165,15 +134,23 @@ def monobank_webhook(request):
                 elif status == 'failure':
                     # Платіж не вдався, але посилання залишається активним
                     logger.info(f"Payment failed for {reference}")
+                elif status == 'processing':
+                    # Платіж обробляється
+                    logger.info(f"Payment processing for {reference}")
                 
             except PaymentLink.DoesNotExist:
                 logger.error(f"PaymentLink with reference {reference} not found")
+        else:
+            logger.warning("No reference found in webhook data")
         
         return HttpResponse("OK", status=200)
         
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in webhook: {str(e)}")
+        return HttpResponse("Invalid JSON", status=400)
     except Exception as e:
         logger.error(f"Error processing monobank webhook: {str(e)}")
-        return HttpResponse("Error", status=400)
+        return HttpResponse("Error", status=500)
 
 
 def payment_success(request, link_uuid):
@@ -198,3 +175,44 @@ def payment_failure(request, link_uuid):
         'payment_link': payment_link,
     }
     return render(request, 'payment/payment_failure.html', context)
+
+
+def test_monobank_api(request):
+    """
+    Тестова сторінка для перевірки роботи Monobank API
+    """
+    if not request.user.is_staff:
+        return redirect('/')
+    
+    context = {
+        'token_configured': bool(getattr(settings, 'MONOBANK_TOKEN', None)),
+        'site_url': getattr(settings, 'SITE_URL', 'Not configured'),
+    }
+    
+    if request.method == 'POST':
+        try:
+            mono_service = MonobankAcquiringService()
+            
+            # Створюємо тестове платіжне посилання
+            test_payment = PaymentLink.objects.create(
+                client_name='Тест API',
+                client_email='test@example.com',
+                amount_usd=1.00,
+                exchange_rate_usd_to_uah=39.50,
+                description='Тестовий платіж для перевірки API Monobank'
+            )
+            
+            # Створюємо тестовий інвойс
+            invoice_data = mono_service.create_invoice(test_payment)
+            
+            if invoice_data:
+                context['success'] = True
+                context['invoice_data'] = invoice_data
+                context['test_payment'] = test_payment
+            else:
+                context['error'] = 'Не вдалося створити інвойс'
+                
+        except Exception as e:
+            context['error'] = f'Помилка: {str(e)}'
+    
+    return render(request, 'payment/test_monobank_api.html', context)

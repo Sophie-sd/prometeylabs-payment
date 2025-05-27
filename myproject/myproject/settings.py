@@ -184,6 +184,10 @@ LOGGING = {
 MONOBANK_TOKEN = 'mRGCK0ukNSMSCakFaid2GQA'
 SITE_URL = 'https://pay.prometeylabs.com'  # Змініть на ваш домен в продакшені
 
+# Для локальної розробки
+if DEBUG:
+    SITE_URL = 'http://localhost:8000'
+
 # Якщо використовуєте .env файл (рекомендовано для продакшену):
 # import os
 # from dotenv import load_dotenv

@@ -9,5 +9,5 @@ urlpatterns = [
     path('pay/<uuid:link_uuid>/success/', views.payment_success, name='payment_success'),
     path('pay/<uuid:link_uuid>/failure/', views.payment_failure, name='payment_failure'),
     path('webhook/monobank/', views.monobank_webhook, name='monobank_webhook'),
-    # Наразі залишимо порожнім, доки не створимо view
+    path('test/monobank-api/', views.test_monobank_api, name='test_monobank_api'),
 ] 

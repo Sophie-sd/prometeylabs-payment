@@ -1,0 +1,7 @@
+django==4.2.21
+python-dotenv==1.0.0
+whitenoise==6.5.0  # Для оптимізації статичних файлів
+django-compressor==4.4  # Для мінімізації CSS та JS
+pillow==10.0.0  # Для роботи з зображеннями
+django-debug-toolbar==4.2.0  # Для розробки (встановіть тільки в DEV середовищі)
+requests==2.31.0  # Для API викликів до monobank 

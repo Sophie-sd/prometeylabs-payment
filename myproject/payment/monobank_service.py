@@ -22,7 +22,7 @@ class MonobankAcquiringService:
         if not self.token:
             raise ImproperlyConfigured("MONOBANK_TOKEN must be set in settings")
         
-        self.base_url = "https://api.monobank.ua/api/merchant"
+        self.base_url = "https://api.monobank.ua"
         self.headers = {
             'X-Token': self.token,
             'Content-Type': 'application/json'
@@ -31,6 +31,7 @@ class MonobankAcquiringService:
     def create_invoice(self, payment_link, payment_method='card'):
         """
         Створює інвойс для оплати через monobank
+        Згідно з документацією: https://monobank.ua/api-docs/acquiring/metody/internet-ekvairynh/post--api--merchant--invoice--create
         """
         try:
             # Конвертуємо USD в копійки UAH
@@ -40,25 +41,27 @@ class MonobankAcquiringService:
             payment_method_names = {
                 'apple_pay': 'Apple Pay',
                 'google_pay': 'Google Pay',
-                'card': 'Visa/Mastercard'
+                'card': 'Картка'
             }
-            method_name = payment_method_names.get(payment_method, 'Card')
+            method_name = payment_method_names.get(payment_method, 'Картка')
             
+            # Формуємо базовий payload згідно з документацією
             payload = {
                 "amount": amount_kopecks,
-                "ccy": 980,  # UAH
+                "ccy": 980,  # UAH (ISO 4217)
                 "merchantPaymInfo": {
-                    "reference": payment_link.unique_id,
-                    "destination": f"Оплата {method_name}: {payment_link.description}",
-                    "comment": f"Платіж через {method_name}"
+                    "reference": str(payment_link.unique_id),
+                    "destination": f"Оплата {method_name}: {payment_link.description[:50]}",
+                    "comment": f"Платіж через {method_name} - {payment_link.client_name}"
                 },
-                "redirectUrl": f"{settings.SITE_URL}/payment/success/{payment_link.unique_id}/",
-                "webHookUrl": f"{settings.SITE_URL}/payment/webhook/monobank/",
-                "validity": 3600,  # 1 година
+                "redirectUrl": self._build_callback_url('payment:payment_success', payment_link.unique_id),
+                "webHookUrl": self._build_webhook_url(),
+                "validity": 3600,  # 1 година (в секундах)
                 "paymentType": "debit"
             }
             
             logger.info(f"Creating monobank invoice for {payment_link.unique_id}: {amount_kopecks} kopecks via {method_name}")
+            logger.info(f"Payload: {json.dumps(payload, indent=2, ensure_ascii=False)}")
             
             response = requests.post(
                 f"{self.base_url}/api/merchant/invoice/create",
@@ -80,55 +83,7 @@ class MonobankAcquiringService:
             logger.error(f"Error creating monobank invoice: {str(e)}")
             return None
     
-    def create_direct_payment(self, payment_link, card_data):
-        """
-        Створює прямий платіж через monobank з даними картки
-        """
-        try:
-            # Конвертуємо USD в копійки UAH
-            amount_kopecks = int(payment_link.final_amount_uah * 100)
-            
-            payload = {
-                "amount": amount_kopecks,
-                "ccy": 980,  # UAH
-                "cardData": {
-                    "pan": card_data['pan'],
-                    "exp": card_data['exp'],
-                    "cvv": card_data['cvv']
-                },
-                "merchantPaymInfo": {
-                    "reference": payment_link.unique_id,
-                    "destination": f"Оплата картою: {payment_link.description}",
-                    "comment": f"Платіж картою {card_data['holder']}"
-                },
-                "redirectUrl": f"{settings.SITE_URL}/payment/success/{payment_link.unique_id}/",
-                "webHookUrl": f"{settings.SITE_URL}/payment/webhook/monobank/",
-                "initiationKind": "client",
-                "paymentType": "debit"
-            }
-            
-            logger.info(f"Creating direct payment for {payment_link.unique_id}: {amount_kopecks} kopecks")
-            
-            response = requests.post(
-                f"{self.base_url}/api/merchant/invoice/payment-direct",
-                headers=self.headers,
-                json=payload,
-                timeout=30
-            )
-            
-            logger.info(f"Monobank direct payment response status: {response.status_code}")
-            logger.info(f"Monobank direct payment response: {response.text}")
-            
-            if response.status_code == 200:
-                return response.json()
-            else:
-                logger.error(f"Monobank direct payment error: {response.status_code} - {response.text}")
-                return None
-                
-        except Exception as e:
-            logger.error(f"Error creating direct payment: {str(e)}")
-            return None
-    
+
     def check_payment_status(self, invoice_id):
         """
         Перевірка статусу платежу
@@ -137,7 +92,7 @@ class MonobankAcquiringService:
         """
         try:
             response = requests.get(
-                f"{self.base_url}/invoice/status",
+                f"{self.base_url}/api/merchant/invoice/status",
                 headers=self.headers,
                 params={"invoiceId": invoice_id},
                 timeout=30
