@@ -11,7 +11,7 @@ COMPANY_INFO_DEFAULT = '''PrometeyLabs — це українська ІТ-ком
 Розробка сайтів та платформ
 AI-аватари, чат-боти, телеграм-боти
 E-commerce рішення
-ФОП Дмитренko Софія Дмитрівна
+ФОП Дмитренко Софія Дмитрівна
 ІПН: 3770706565
 ФОП зареєстровано в Україні, платник єдиного податку 3 групи.'''
 
@@ -161,11 +161,7 @@ class PaymentLink(models.Model):
         super().save(*args, **kwargs)
 
     def is_expired(self):
-        if self.duration_minutes == 0:  # Без обмеження часу
-            return False
-        if self.expires_at:
-            return timezone.now() > self.expires_at
-        return False 
+        return self.duration_minutes > 0 and self.expires_at and timezone.now() > self.expires_at
 
     def __str__(self):
         details = f"{self.amount_usd} USD"

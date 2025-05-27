@@ -324,262 +324,95 @@
 
             if (!timerElement) return;
 
-            // Перевіряємо час одразу при завантаженні сторінки
-            checkTimeRemaining();
-            
-            // Функція для перевірки і оновлення часу
             function checkTimeRemaining() {
                 const now = new Date().getTime();
                 const distance = countDownDate - now;
 
                 if (distance < 0) {
-                    // Час вже минув
                     timerElement.innerHTML = "ЧАС ВИЙШОВ";
                     timerContainer.classList.add('timer-expired');
-                    // Можливо тут додати перезавантаження сторінки або інші дії
                     return;
                 }
                 
-                // Розрахунок часу, що залишився
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                // Форматування тексту таймера
                 let timerText = "";
-                if (days > 0) timerText += days + " д " + (days === 1 ? "" : "");
-                if (hours > 0 || days > 0) timerText += hours + " год " + (hours === 1 ? "" : "");
-                if (minutes > 0 || hours > 0 || days > 0) timerText += minutes + " хв " + (minutes === 1 ? "" : "");
+                if (days > 0) timerText += days + " д ";
+                if (hours > 0 || days > 0) timerText += hours + " год ";
+                if (minutes > 0 || hours > 0 || days > 0) timerText += minutes + " хв ";
                 timerText += seconds + " с";
                 
                 timerElement.innerHTML = timerText;
                 
-                // Змінюємо колір таймера в залежності від того, скільки часу залишилось
-                if (distance < 1000 * 60 * 30) { // Менше 30 хвилин
+                if (distance < 1000 * 60 * 30) {
                     timerContainer.classList.add('timer-urgent');
-                } else if (distance < 1000 * 60 * 60 * 3) { // Менше 3 годин
+                } else if (distance < 1000 * 60 * 60 * 3) {
                     timerContainer.classList.add('timer-warning');
                 }
             }
 
-            // Оновлення таймера кожну секунду
-            const x = setInterval(function() {
-                const now = new Date().getTime();
-                const distance = countDownDate - now;
-
-                if (distance < 0) {
-                    clearInterval(x);
-                    checkTimeRemaining();
-                } else {
-                    checkTimeRemaining();
-                }
-            }, 1000);
+            checkTimeRemaining();
+            setInterval(checkTimeRemaining, 1000);
         });
     </script>
     {% endif %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Додаємо функціонал для прокрутки до форми оплати
             const scrollToPaymentBtn = document.getElementById('scrollToPaymentBtn');
             if (scrollToPaymentBtn) {
                 scrollToPaymentBtn.addEventListener('click', function() {
-                    const paymentFormSection = document.querySelector('.payment-form');
-                    if (paymentFormSection) {
-                        paymentFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    document.querySelector('.payment-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 });
             }
             
-            // Примусово встановлюємо стилі для елементів з валютою
-            const amountUahElements = document.querySelectorAll('.amount-uah');
-            amountUahElements.forEach(function(element) {
-                element.style.color = '#4CAF50';
-                element.style.fontWeight = '700';
-                element.style.fontSize = '1.15em';
-            });
-            
-            const totalUahRow = document.querySelectorAll('.total-uah-row');
-            totalUahRow.forEach(function(element) {
-                element.style.backgroundColor = 'rgba(76, 175, 80, 0.08)';
-                element.style.borderTop = '2px solid rgba(76, 175, 80, 0.3)';
-                element.style.padding = '12px';
-                element.style.borderRadius = '8px';
-                element.style.marginTop = '10px';
-            });
-            
-            const currencyDisplayBlock = document.querySelectorAll('.currency-display-block');
-            currencyDisplayBlock.forEach(function(element) {
-                element.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-                element.style.boxShadow = '0 3px 12px rgba(0, 0, 0, 0.08)';
-                element.style.border = '1px solid rgba(0, 0, 0, 0.12)';
-                element.style.borderRadius = '10px';
-                element.style.padding = '18px';
-                element.style.margin = '20px 0';
-            });
-            
-            // Додаємо функціонал кнопкам копіювання
-            const copyButtons = document.querySelectorAll('.copy-btn');
-            
-            copyButtons.forEach(button => {
+            // Copy buttons functionality
+            document.querySelectorAll('.copy-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const textToCopy = this.getAttribute('data-copy');
-                    navigator.clipboard.writeText(textToCopy)
-                        .then(() => {
-                            // Зміна тексту кнопки на підтвердження
-                            const originalText = this.innerText;
-                            this.innerText = 'Скопійовано!';
-                            this.classList.add('copy-success');
-                            
-                            // Повернення оригінального тексту через 2 секунди
-                            setTimeout(() => {
-                                this.innerText = originalText;
-                                this.classList.remove('copy-success');
-                            }, 2000);
-                        })
-                        .catch(err => {
-                            console.error('Помилка копіювання: ', err);
-                        });
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = this.innerText;
+                        this.innerText = 'Скопійовано!';
+                        this.classList.add('copy-success');
+                        setTimeout(() => {
+                            this.innerText = originalText;
+                            this.classList.remove('copy-success');
+                        }, 2000);
+                    }).catch(err => console.error('Помилка копіювання: ', err));
                 });
             });
             
-            // Функціонал для розгортання деталей про компанію
-            const companyDetailsBtn = document.getElementById('companyDetailsBtn');
-            const companyDetails = document.getElementById('companyDetails');
-            
-            if (companyDetailsBtn && companyDetails) {
-                companyDetailsBtn.addEventListener('click', function() {
-                    const btnWrapper = this.parentElement; // Отримуємо wrapper для кнопки
-                    const companyDescriptionDiv = btnWrapper.parentElement; // Отримуємо батьківський div
-                    
-                    companyDetails.classList.toggle('visible');
-                    this.classList.toggle('active');
-                    
-                    if (companyDetails.classList.contains('visible')) {
-                        // Якщо блок розгорнутий, переміщуємо кнопку в кінець
-                        this.textContent = 'Згорнути';
-                        btnWrapper.classList.add('bottom');
-                        companyDescriptionDiv.appendChild(btnWrapper);
-                    } else {
-                        // Якщо блок згорнутий, повертаємо кнопку після першого абзацу
-                        this.textContent = 'Детальніше';
-                        btnWrapper.classList.remove('bottom');
-                        companyDescriptionDiv.insertBefore(btnWrapper, companyDetails);
-                    }
-                });
-            }
-            
-            // Функціонал для розгортання інструкцій з оплати
-            const paymentInstructionsBtn = document.getElementById('paymentInstructionsBtn');
-            const paymentInstructionsDetails = document.getElementById('paymentInstructionsDetails');
-            
-            if (paymentInstructionsBtn && paymentInstructionsDetails) {
-                paymentInstructionsBtn.addEventListener('click', function() {
-                    const btnWrapper = this.parentElement; // Отримуємо wrapper для кнопки
-                    const paymentDescriptionDiv = btnWrapper.parentElement; // Отримуємо батьківський div
-                    
-                    paymentInstructionsDetails.classList.toggle('visible');
-                    this.classList.toggle('active');
-                    
-                    if (paymentInstructionsDetails.classList.contains('visible')) {
-                        // Якщо блок розгорнутий, переміщуємо кнопку в кінець
-                        this.textContent = 'Згорнути';
-                        btnWrapper.classList.add('bottom');
-                        paymentDescriptionDiv.appendChild(btnWrapper);
-                    } else {
-                        // Якщо блок згорнутий, повертаємо кнопку після першого абзацу
-                        this.textContent = 'Детальніше';
-                        btnWrapper.classList.remove('bottom');
-                        paymentDescriptionDiv.insertBefore(btnWrapper, paymentInstructionsDetails);
-                    }
-                });
-            }
-            
-            // Функціонал для показу/приховування форми картки
-            const showCardFormBtn = document.getElementById('showCardFormBtn');
-            const cardPaymentForm = document.getElementById('cardPaymentForm');
-            const cancelCardForm = document.getElementById('cancelCardForm');
-            const cardButtonHint = document.getElementById('cardButtonHint');
-            
-            if (showCardFormBtn && cardPaymentForm) {
-                showCardFormBtn.addEventListener('click', function() {
-                    // Toggle форми
-                    if (cardPaymentForm.style.display === 'none' || cardPaymentForm.style.display === '') {
-                        // Відкриваємо форму
-                        cardPaymentForm.style.display = 'block';
-                        cardPaymentForm.classList.add('show');
-                        showCardFormBtn.classList.add('form-expanded');
-                        if (cardButtonHint) {
-                            cardButtonHint.innerHTML = '<small>👆 Натисніть щоб закрити форму</small>';
+            // Toggle details functionality
+            function setupToggle(btnId, detailsId) {
+                const btn = document.getElementById(btnId);
+                const details = document.getElementById(detailsId);
+                
+                if (btn && details) {
+                    btn.addEventListener('click', function() {
+                        const btnWrapper = this.parentElement;
+                        const parentDiv = btnWrapper.parentElement;
+                        
+                        details.classList.toggle('visible');
+                        this.classList.toggle('active');
+                        
+                        if (details.classList.contains('visible')) {
+                            this.textContent = 'Згорнути';
+                            btnWrapper.classList.add('bottom');
+                            parentDiv.appendChild(btnWrapper);
+                        } else {
+                            this.textContent = 'Детальніше';
+                            btnWrapper.classList.remove('bottom');
+                            parentDiv.insertBefore(btnWrapper, details);
                         }
-                        cardPaymentForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    } else {
-                        // Закриваємо форму
-                        cardPaymentForm.style.display = 'none';
-                        cardPaymentForm.classList.remove('show');
-                        showCardFormBtn.classList.remove('form-expanded');
-                        if (cardButtonHint) {
-                            cardButtonHint.innerHTML = '<small>👆 Натисніть щоб ввести дані картки</small>';
-                        }
-                    }
-                });
+                    });
+                }
             }
             
-            if (cancelCardForm) {
-                cancelCardForm.addEventListener('click', function() {
-                    cardPaymentForm.style.display = 'none';
-                    cardPaymentForm.classList.remove('show');
-                    showCardFormBtn.classList.remove('form-expanded');
-                    if (cardButtonHint) {
-                        cardButtonHint.innerHTML = '<small>👆 Натисніть щоб ввести дані картки</small>';
-                    }
-                });
-            }
-            
-            // Форматування номера картки
-            const cardNumberInput = document.getElementById('card-number');
-            if (cardNumberInput) {
-                cardNumberInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
-                    let formattedValue = '';
-                    for (let i = 0; i < value.length; i++) {
-                        if (i > 0 && i % 4 === 0) {
-                            formattedValue += ' ';
-                        }
-                        formattedValue += value[i];
-                    }
-                    e.target.value = formattedValue;
-                });
-            }
-            
-            // Форматування терміну дії
-            const cardExpiryInput = document.getElementById('card-expiry');
-            if (cardExpiryInput) {
-                cardExpiryInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length >= 2) {
-                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-                    }
-                    e.target.value = value;
-                });
-            }
-            
-            // Обмеження CVV до цифр
-            const cardCvvInput = document.getElementById('card-cvv');
-            if (cardCvvInput) {
-                cardCvvInput.addEventListener('input', function(e) {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                });
-            }
-            
-            // Форматування імені власника (тільки літери та пробіли)
-            const cardHolderInput = document.getElementById('card-holder');
-            if (cardHolderInput) {
-                cardHolderInput.addEventListener('input', function(e) {
-                    e.target.value = e.target.value.replace(/[^a-zA-ZА-Яа-яІіЇїЄє\s]/g, '').toUpperCase();
-                });
-            }
+            setupToggle('companyDetailsBtn', 'companyDetails');
+            setupToggle('paymentInstructionsBtn', 'paymentInstructionsDetails');
         });
     </script>
 </body>

@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views # Ми створимо views пізніше
+from . import views
 
 app_name = 'payment'
 

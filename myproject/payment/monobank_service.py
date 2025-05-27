@@ -1,7 +1,6 @@
 import requests
 import json
 import logging
-from decimal import Decimal
 from django.conf import settings
 from django.urls import reverse
 from django.core.exceptions import ImproperlyConfigured
@@ -23,10 +22,7 @@ class MonobankAcquiringService:
             raise ImproperlyConfigured("MONOBANK_TOKEN must be set in settings")
         
         self.base_url = "https://api.monobank.ua"
-        self.headers = {
-            'X-Token': self.token,
-            'Content-Type': 'application/json'
-        }
+        self.headers = {'X-Token': self.token, 'Content-Type': 'application/json'}
     
     def create_invoice(self, payment_link, payment_method='card'):
         """
@@ -34,51 +30,34 @@ class MonobankAcquiringService:
         Згідно з документацією: https://monobank.ua/api-docs/acquiring/metody/internet-ekvairynh/post--api--merchant--invoice--create
         """
         try:
-            # Конвертуємо USD в копійки UAH
             amount_kopecks = int(payment_link.final_amount_uah * 100)
+            method_names = {'apple_pay': 'Apple Pay', 'google_pay': 'Google Pay', 'card': 'Картка'}
+            method_name = method_names.get(payment_method, 'Картка')
             
-            # Формуємо коментар залежно від методу оплати
-            payment_method_names = {
-                'apple_pay': 'Apple Pay',
-                'google_pay': 'Google Pay',
-                'card': 'Картка'
-            }
-            method_name = payment_method_names.get(payment_method, 'Картка')
-            
-            # Формуємо базовий payload згідно з документацією
             payload = {
                 "amount": amount_kopecks,
-                "ccy": 980,  # UAH (ISO 4217)
+                "ccy": 980,
                 "merchantPaymInfo": {
                     "reference": str(payment_link.unique_id),
                     "destination": f"Оплата {method_name}: {payment_link.description[:50]}",
                     "comment": f"Платіж через {method_name} - {payment_link.client_name}"
                 },
-                "redirectUrl": self._build_callback_url('payment:payment_success', payment_link.unique_id),
-                "webHookUrl": self._build_webhook_url(),
-                "validity": 3600,  # 1 година (в секундах)
+                "redirectUrl": self._build_url('payment:payment_success', payment_link.unique_id),
+                "webHookUrl": self._build_url('payment:monobank_webhook'),
+                "validity": 3600,
                 "paymentType": "debit"
             }
             
-            logger.info(f"Creating monobank invoice for {payment_link.unique_id}: {amount_kopecks} kopecks via {method_name}")
-            logger.info(f"Payload: {json.dumps(payload, indent=2, ensure_ascii=False)}")
+            logger.info(f"Creating monobank invoice for {payment_link.unique_id}: {amount_kopecks} kopecks")
             
-            response = requests.post(
-                f"{self.base_url}/api/merchant/invoice/create",
-                headers=self.headers,
-                json=payload,
-                timeout=30
-            )
-            
-            logger.info(f"Monobank API response status: {response.status_code}")
-            logger.info(f"Monobank API response: {response.text}")
+            response = requests.post(f"{self.base_url}/api/merchant/invoice/create", 
+                                   headers=self.headers, json=payload, timeout=30)
             
             if response.status_code == 200:
                 return response.json()
             else:
                 logger.error(f"Monobank API error: {response.status_code} - {response.text}")
                 return None
-                
         except Exception as e:
             logger.error(f"Error creating monobank invoice: {str(e)}")
             return None
@@ -91,48 +70,15 @@ class MonobankAcquiringService:
         :return: Словник з даними статусу або None при помилці
         """
         try:
-            response = requests.get(
-                f"{self.base_url}/api/merchant/invoice/status",
-                headers=self.headers,
-                params={"invoiceId": invoice_id},
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                return response.json()
-            else:
-                logger.error(f"Failed to check payment status: {response.status_code} - {response.text}")
-                return None
-                
+            response = requests.get(f"{self.base_url}/api/merchant/invoice/status",
+                                  headers=self.headers, params={"invoiceId": invoice_id}, timeout=30)
+            return response.json() if response.status_code == 200 else None
         except Exception as e:
             logger.error(f"Error checking payment status for invoice {invoice_id}: {str(e)}")
             return None
     
-    def _build_callback_url(self, url_name, payment_uuid):
-        """
-        Побудова повного URL для колбеків
-        """
-        from django.contrib.sites.models import Site
-        try:
-            current_site = Site.objects.get_current()
-            domain = f"https://{current_site.domain}"
-        except:
-            # Якщо Site framework не налаштований, використовуємо з settings
-            domain = getattr(settings, 'SITE_URL', 'http://localhost:8000')
-        
-        relative_url = reverse(url_name, kwargs={'link_uuid': payment_uuid})
-        return f"{domain}{relative_url}"
-    
-    def _build_webhook_url(self):
-        """
-        Побудова URL для webhook
-        """
-        from django.contrib.sites.models import Site
-        try:
-            current_site = Site.objects.get_current()
-            domain = f"https://{current_site.domain}"
-        except:
-            domain = getattr(settings, 'SITE_URL', 'http://localhost:8000')
-        
-        webhook_path = reverse('payment:monobank_webhook')
-        return f"{domain}{webhook_path}" 
+    def _build_url(self, url_name, uuid=None):
+        domain = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+        kwargs = {'link_uuid': uuid} if uuid else {}
+        relative_url = reverse(url_name, kwargs=kwargs)
+        return f"{domain}{relative_url}" 

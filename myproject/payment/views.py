@@ -16,51 +16,33 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 def payment_page_view(request, link_uuid):
-    # Оптимізовано: використовуємо select_related для майбутніх зв'язків з іншими моделями
     payment_link = get_object_or_404(PaymentLink, unique_id=link_uuid)
     now = timezone.now()
 
-    # Встановлюємо час першого відкриття та кінцевий термін, якщо це перший візит
-    # і якщо встановлено тривалість (duration_minutes > 0)
     if payment_link.duration_minutes > 0 and payment_link.first_opened_at is None:
         payment_link.first_opened_at = now
         payment_link.expires_at = now + timedelta(minutes=payment_link.duration_minutes)
-        # Змінюємо статус на 'pending' (Очікує оплати), якщо він був 'new'
         if payment_link.status == 'new':
             payment_link.status = 'pending'
         payment_link.save(update_fields=['first_opened_at', 'expires_at', 'status'])
     
-    current_status = payment_link.status
-    is_link_expired = payment_link.is_expired() # Викликаємо метод моделі
-
-    # Якщо посилання протерміновано і статус ще не 'expired', 'paid' або 'deactivated', оновлюємо його
-    if is_link_expired and current_status not in ['expired', 'paid', 'deactivated']:
+    if payment_link.is_expired() and payment_link.status not in ['expired', 'paid', 'deactivated']:
         payment_link.status = 'expired'
-        payment_link.save(update_fields=['status']) 
-        current_status = 'expired' 
+        payment_link.save(update_fields=['status'])
 
-    # Перевірка, чи посилання активне для оплати
-    # (не 'paid', не 'deactivated', не 'expired')
-    # Також, якщо duration_minutes == 0 (без обмеження), то воно завжди активне, якщо не paid/deactivated
-    can_proceed_to_payment = False
-    if payment_link.duration_minutes == 0:
-        if current_status not in ['paid', 'deactivated']:
-            can_proceed_to_payment = True
-    elif current_status not in ['paid', 'deactivated', 'expired']:
-        can_proceed_to_payment = True
-
-    if not can_proceed_to_payment:
+    inactive_statuses = ['paid', 'deactivated']
+    if payment_link.duration_minutes > 0:
+        inactive_statuses.append('expired')
+    
+    if payment_link.status in inactive_statuses:
         return render(request, 'payment/link_inactive.html', {
-            'payment_link': payment_link,
-            'reason': current_status 
+            'payment_link': payment_link, 'reason': payment_link.status
         })
 
-    context = {
+    return render(request, 'payment/payment_page.html', {
         'payment_link': payment_link,
-        # Передаємо expires_at для таймера, тільки якщо воно встановлено і є тривалість
         'expires_at_iso': payment_link.expires_at.isoformat() if payment_link.expires_at and payment_link.duration_minutes > 0 else None,
-    }
-    return render(request, 'payment/payment_page.html', context)
+    })
 
 
 @require_POST
@@ -112,15 +94,10 @@ def monobank_webhook(request):
     """
     try:
         data = json.loads(request.body)
-        invoice_id = data.get('invoiceId')
+        reference = data.get('merchantPaymInfo', {}).get('reference')
         status = data.get('status')
         
-        # Отримуємо reference з merchantPaymInfo
-        merchant_paym_info = data.get('merchantPaymInfo', {})
-        reference = merchant_paym_info.get('reference')
-        
-        logger.info(f"Monobank webhook received: invoice_id={invoice_id}, status={status}, reference={reference}")
-        logger.info(f"Full webhook data: {json.dumps(data, indent=2, ensure_ascii=False)}")
+        logger.info(f"Monobank webhook: status={status}, reference={reference}")
         
         if reference:
             try:
@@ -191,27 +168,18 @@ def test_monobank_api(request):
     
     if request.method == 'POST':
         try:
-            mono_service = MonobankAcquiringService()
-            
-            # Створюємо тестове платіжне посилання
             test_payment = PaymentLink.objects.create(
-                client_name='Тест API',
-                client_email='test@example.com',
-                amount_usd=1.00,
-                exchange_rate_usd_to_uah=39.50,
+                client_name='Тест API', client_email='test@example.com',
+                amount_usd=1.00, exchange_rate_usd_to_uah=39.50,
                 description='Тестовий платіж для перевірки API Monobank'
             )
             
-            # Створюємо тестовий інвойс
-            invoice_data = mono_service.create_invoice(test_payment)
+            invoice_data = MonobankAcquiringService().create_invoice(test_payment)
             
             if invoice_data:
-                context['success'] = True
-                context['invoice_data'] = invoice_data
-                context['test_payment'] = test_payment
+                context.update({'success': True, 'invoice_data': invoice_data, 'test_payment': test_payment})
             else:
                 context['error'] = 'Не вдалося створити інвойс'
-                
         except Exception as e:
             context['error'] = f'Помилка: {str(e)}'
     

@@ -21,7 +21,6 @@
     
     <div class="config-section">
         <h2>Конфігурація</h2>
-        
         <div class="config-item">
             <strong>Токен налаштовано:</strong> 
             {% if token_configured %}
@@ -30,28 +29,21 @@
                 <span style="color: red;">✗ Ні</span>
             {% endif %}
         </div>
-        
         <div class="config-item">
             <strong>Site URL:</strong> {{ site_url }}
         </div>
     </div>
     
     {% if error %}
-        <div class="status error">
-            <strong>Помилка:</strong> {{ error }}
-        </div>
+        <div class="status error"><strong>Помилка:</strong> {{ error }}</div>
     {% endif %}
     
     {% if success %}
-        <div class="status success">
-            <strong>Успіх!</strong> API працює правильно. Інвойс створено.
-        </div>
-        
+        <div class="status success"><strong>Успіх!</strong> API працює правильно. Інвойс створено.</div>
         <div class="status info">
             <strong>Дані інвойсу:</strong>
             <pre>{{ invoice_data|pprint }}</pre>
         </div>
-        
         <div class="status info">
             <strong>Тестове платіжне посилання:</strong>
             <p><a href="{% url 'payment:payment_page_view' test_payment.unique_id %}" target="_blank">
@@ -66,14 +58,14 @@
             {% csrf_token %}
             <button type="submit" class="test-btn">Створити тестовий інвойс</button>
         </form>
-        <p><small>Цей тест створить тестове платіжне посилання та спробує створити інвойс в Monobank.</small></p>
+        <p><small>Створить тестове платіжне посилання та спробує створити інвойс в Monobank.</small></p>
     </div>
     
     <div class="documentation">
         <h2>Документація</h2>
         <ul>
             <li><a href="https://monobank.ua/api-docs/acquiring/metody/internet-ekvairynh/post--api--merchant--invoice--create" target="_blank">
-                Документація API створення інвойсу
+                API створення інвойсу
             </a></li>
             <li><a href="https://acquiring.monobank.ua/docs/online_acquiring/brandbook" target="_blank">
                 Брендбук Monobank
